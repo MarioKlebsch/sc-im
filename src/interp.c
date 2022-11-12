@@ -84,25 +84,25 @@
 #endif
 #include "graph.h"
 
-extern int find_range(char * name, int len, struct ent * lmatch, struct ent * rmatch, struct range ** rng);
+extern int find_range(char * name, size_t len, struct ent * lmatch, struct ent * rmatch, struct range ** rng);
 extern bool decimal;      /* Set if there was a decimal point in the number */
 extern struct session * session;
 extern graphADT graph;
 extern WINDOW * input_win;
 
-void exit_app();
-double fn1_eval      (double (* fn)(), double arg);
-double fn2_eval      (double (* fn)(), double arg1, double arg2);
+void exit_app(int);
+double fn1_eval      (double (* fn)(double), double arg);
+double fn2_eval      (double (* fn)(double,double), double arg1, double arg2);
 int    constant      (struct enode * e);
 void   copydbuf      (int deltar, int deltac);
 void   decompile     (struct enode * e, int priority);
-void   index_arg     (char * s, struct enode * e);
-void   list_arg      (char * s, struct enode * e);
-void   one_arg       (char * s, struct enode * e);
-void   range_arg     (char * s, struct enode * e);
-void   three_arg     (char * s, struct enode * e);
-void   two_arg       (char * s, struct enode * e);
-void   two_arg_index (char * s, struct enode * e);
+void   index_arg     (const char * s, struct enode * e);
+void   list_arg      (const char * s, struct enode * e);
+void   one_arg       (const char * s, struct enode * e);
+void   range_arg     (const char * s, struct enode * e);
+void   three_arg     (const char * s, struct enode * e);
+void   two_arg       (const char * s, struct enode * e);
+void   two_arg_index (const char * s, struct enode * e);
 
 int exprerr;              /* Set by eval() and seval() if expression errors */
 double prescale = 1.0;    /* Prescale for constants in let() */
@@ -207,8 +207,7 @@ double eval(struct sheet * sh, struct ent * ent, struct enode * e) {
             if (ent && ent->expr != NULL && getVertex(graph, sh, ent, 0) == NULL) GraphAddVertex(graph, sh, ent);
             return (e->e.k);
 
-    case GETENT:
-            ;
+    case GETENT: {
             int r = eval(sh, ent, e->e.o.left);
             int c = eval(sh, ent, e->e.o.right);
             if (r < 0 || c < 0) {
@@ -228,7 +227,7 @@ double eval(struct sheet * sh, struct ent * ent, struct enode * e) {
             if (ent && vp) GraphAddEdge(getVertex(graph, sh, lookat(sh, ent->row, ent->col), 1), getVertex(graph, sh, lookat(sh, vp->row, vp->col), 1));
             if (vp && vp->flags & is_valid) return (vp->v);
             return (double) 0;
-
+            }
     case O_VAR:    {
             struct ent * vp = e->e.v.vp;
             struct sheet * sh_vp = e->e.v.sheet;
@@ -477,18 +476,18 @@ double eval(struct sheet * sh, struct ent * ent, struct enode * e) {
 
     case LMIN:   return dolmin(sh, ent, e);
 
-    case NVAL:
+    case NVAL:   {
                  if (ent && getVertex(graph, sh, ent, 0) == NULL) GraphAddVertex(graph, sh, ent);
                  char * s = seval(sh, ent, e->e.o.left);
                  if (! s) { return (double) (0); }
-                 char * sf = calloc(strlen(s)+1, sizeof(char));
+                 char * sf = (char*)calloc(strlen(s)+1, sizeof(char));
                  strcpy(sf, s);
                  double n = eval(sh, ent, e->e.o.right);
                  struct ent * ep = getent(sh, sf, n, 1);
                  if (! ep) { free(s); return (double) (0); }
                  if (ent && ep) GraphAddEdge(getVertex(graph, sh, lookat(sh, ent->row, ent->col), 1), getVertex(graph, sh, ep, 1));
                  return donval(sh, s, n);
-
+                 }
     case MYROW:
                  // if @myrow is called before EvallJustOneVertex
                  // (this might happen during startup when loading file)
@@ -760,7 +759,7 @@ struct ent * getent(struct sheet * sh, char * colstr, double rowdoub, int alloc)
  * \brief eval_fpe()
  * \return none
  */
-void eval_fpe() { /* Trap for FPE errors in eval */
+void eval_fpe(int) { /* Trap for FPE errors in eval */
 #if defined(i386)
     sc_debug("eval_fpe i386");
     asm("    fnclex");
@@ -781,7 +780,7 @@ void eval_fpe() { /* Trap for FPE errors in eval */
  * \param[in] arg
  * \return double
  */
-double fn1_eval(double (*fn)(), double arg) {
+double fn1_eval(double (*fn)(double), double arg) {
     double res;
     errno = 0;
     res = (*fn) (arg);
@@ -798,7 +797,7 @@ double fn1_eval(double (*fn)(), double arg) {
  * \param[in] arg2
  * \return double
  */
-double fn2_eval(double (*fn)(), double arg1, double arg2) {
+double fn2_eval(double (*fn)(double,double), double arg1, double arg2) {
     double res;
     errno = 0;
     res = (*fn) (arg1, arg2);
@@ -814,7 +813,7 @@ double fn2_eval(double (*fn)(), double arg1, double arg2) {
  * \param[in] a2
  * \return struct enode *
  */
-struct enode * new(int op, struct enode * a1, struct enode * a2) {
+struct enode * New(int op, struct enode * a1, struct enode * a2) {
     struct enode * p;
     //if (freeenodes) {
     //     p = freeenodes;
@@ -1760,7 +1759,7 @@ void efree(struct enode * e) {
  * \param[in] flushdir
  * \return none
  */
-void label(struct ent * v, char * s, int flushdir) {
+void label(struct ent * v, const char * s, int flushdir) {
     struct roman * roman = session->cur_doc;
     if (v) {
         /*if (flushdir == 0 && v->flags & is_valid) {
@@ -1864,7 +1863,7 @@ void decompile_list(struct enode *p) {
  * \return none
  */
 void decompile(struct enode *e, int priority) {
-    char *s;
+    const char *s;
     if (e) {
     int mypriority;
     switch (e->op) {
@@ -2084,7 +2083,7 @@ void decompile(struct enode *e, int priority) {
  * \param[in] e
  * \return none
  */
-void index_arg(char *s, struct enode *e) {
+void index_arg(const char *s, struct enode *e) {
     if (e->e.o.right && e->e.o.right->op == ',') {
         two_arg_index(s, e);
         return;
@@ -2107,7 +2106,7 @@ void index_arg(char *s, struct enode *e) {
  * \param[in] e
  * \return none
  */
-void two_arg_index(char *s, struct enode *e) {
+void two_arg_index(const char *s, struct enode *e) {
     for (; (line[linelim++] = *s++); );
     linelim--;
     range_arg("(", e->e.o.left);
@@ -2126,7 +2125,7 @@ void two_arg_index(char *s, struct enode *e) {
  * \param[in] e
  * \return none
  */
-void list_arg(char *s, struct enode *e) {
+void list_arg(const char *s, struct enode *e) {
     for (; (line[linelim++] = *s++); );
     linelim--;
 
@@ -2143,7 +2142,7 @@ void list_arg(char *s, struct enode *e) {
  * \param[in] e
  * \return none
  */
-void one_arg(char *s, struct enode *e) {
+void one_arg(const char *s, struct enode *e) {
     for (; (line[linelim++] = *s++); );
     linelim--;
     decompile(e->e.o.left, 0);
@@ -2157,7 +2156,7 @@ void one_arg(char *s, struct enode *e) {
  * \param[in] e
  * \return none
  */
-void two_arg(char *s, struct enode *e) {
+void two_arg(const char *s, struct enode *e) {
     for (; (line[linelim++] = *s++); );
     linelim--;
     decompile(e->e.o.left, 0);
@@ -2173,7 +2172,7 @@ void two_arg(char *s, struct enode *e) {
  * \param[in] e
  * \return none
  */
-void three_arg(char *s, struct enode *e) {
+void three_arg(const char *s, struct enode *e) {
     for (; (line[linelim++] = *s++); );
     linelim--;
     decompile(e->e.o.left, 0);
@@ -2191,7 +2190,7 @@ void three_arg(char *s, struct enode *e) {
  * \param[in] e
  * \return none
  */
-void range_arg(char *s, struct enode *e) {
+void range_arg(const char *s, struct enode *e) {
     struct range *r;
 
     for (; (line[linelim++] = *s++); );

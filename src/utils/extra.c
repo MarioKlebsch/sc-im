@@ -51,7 +51,7 @@
 #include "../macros.h"
 //#include "../range.h"
 
-extern int find_range(char * name, int len, struct ent * lmatch, struct ent * rmatch, struct range ** rng);
+extern int find_range(char * name, size_t len, struct ent * lmatch, struct ent * rmatch, struct range ** rng);
 extern struct session * session;
 
 #define freen(x) nofreeNULL(x)

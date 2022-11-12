@@ -55,8 +55,8 @@ int add_wchar(wchar_t * str, wchar_t c, int posicion);
 
 void subst(char * s, char from, char to);
 int is_idchar (int d);
-int str_in_str(char * s, char * b);
-int wstr_in_wstr(wchar_t * s, wchar_t * b);
+int str_in_str(const char * s, const char * b);
+int wstr_in_wstr(const wchar_t * s, const wchar_t * b);
 char * ltrim(char *string, char junk);
 char * rtrim(char * string, char junk);
 int isnumeric(char * string);

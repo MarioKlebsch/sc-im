@@ -62,6 +62,11 @@
 #include "../undo.h"
 #endif
 
+#ifdef USELOCALE
+#include <locale.h>
+#include <langinfo.h>
+#endif
+
 
 #include "../graph.h"
 extern graphADT graph;
@@ -182,6 +187,7 @@ void do_normalmode(struct block * buf) {
 
         // Tick
         case L'\'':
+            {
             if (bs != 2) break;
             unselect_ranges();
             struct ent_ptr * ep = tick(buf->pnext->value);
@@ -203,7 +209,7 @@ void do_normalmode(struct block * buf) {
             if (ep != NULL) free(ep);
             ui_update(TRUE);
             break;
-
+            }
         // CTRL j
         case ctl('j'):
             {
@@ -222,8 +228,6 @@ void do_normalmode(struct block * buf) {
         case ctl('d'):                      // set date format using current locate D_FMT format
             {
         #ifdef USELOCALE
-            #include <locale.h>
-            #include <langinfo.h>
             char * loc = NULL;
             char * f = NULL;
             loc = setlocale(LC_TIME, "");
@@ -303,13 +307,14 @@ void do_normalmode(struct block * buf) {
             break;
 
         case L'H':
+            {
             sh->lastrow = sh->currow;
             int currow_h = vert_top(sh)->row;
             sh->currow = currow_h;
             unselect_ranges();
             ui_update(TRUE);
             break;
-
+            }
         case L'M':
             sh->lastrow = sh->currow;
             sh->currow = vert_middle(sh)->row;
@@ -453,7 +458,7 @@ void do_normalmode(struct block * buf) {
         case L'/':
             {
             char cadena[] = ":int goto ";
-            int i;
+            size_t i;
             for (i=0; i<strlen(cadena); i++) {
                 flush_buf(buf);
                 addto_buf(buf, cadena[i]);
@@ -465,7 +470,7 @@ void do_normalmode(struct block * buf) {
         case L'?':
             {
             char cadena[] = ":int gotob ";
-            int i;
+            size_t i;
             for (i=0; i<strlen(cadena); i++) {
                 flush_buf(buf);
                 addto_buf(buf, cadena[i]);
@@ -632,6 +637,7 @@ void do_normalmode(struct block * buf) {
 
         // mark cell or range
         case L'm':
+            {
             if (bs != 2) break;
             int p = is_range_selected();
             if (p != -1) { // mark range
@@ -641,7 +647,7 @@ void do_normalmode(struct block * buf) {
                 set_cell_mark(buf->pnext->value, sh, sh->currow, sh->curcol);
             roman->modflg++;
             break;
-
+            }
         // copy
         case L'c':
             {
@@ -978,6 +984,7 @@ void do_normalmode(struct block * buf) {
 
         // scroll
         case L'z':
+            {
             if ( bs != 2 ) break;
             int scroll = 0;
 
@@ -1003,7 +1010,7 @@ void do_normalmode(struct block * buf) {
                     break;
 
                 case L'm':
-                    ;
+                    {
                     int i = 0, c = 0, ancho = sh->rescol;
                     sh->offscr_sc_cols = 0;
                     for (i = 0; i < sh->curcol; i++) {
@@ -1018,7 +1025,7 @@ void do_normalmode(struct block * buf) {
                     }
                     sh->offscr_sc_cols = i;
                     break;
-
+                    }
                 case L't':
                 case L'b':
                 case L'z':
@@ -1070,6 +1077,7 @@ void do_normalmode(struct block * buf) {
             }
             ui_update(TRUE);
             break;
+            }
 
         // scroll up a line
         case ctl('y'):
@@ -1140,7 +1148,7 @@ void do_normalmode(struct block * buf) {
             }
 
         case ctl('l'):
-            sig_winchg();
+            sig_winchg(0);
             break;
 
         case L'@':

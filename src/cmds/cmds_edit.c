@@ -97,7 +97,7 @@ void do_editmode(struct block * sb) {
         ui_show_header();
         return;
 
-    } else if (sb->value == L' ' && ( wcslen(inputline) < (COLS - 14) ) ) {         // SPACE
+    } else if (sb->value == L' ' && ( wcslen(inputline) + 14 < (size_t)COLS) ) {         // SPACE
         add_wchar(inputline, L' ', real_inputline_pos);
         ui_show_header();
         return;
@@ -528,7 +528,8 @@ void do_editmode(struct block * sb) {
  */
 
 int look_for(wchar_t cb) {
-    int c, cpos = inputline_pos;
+    wchar_t c;
+    size_t cpos = inputline_pos;
     while (++cpos < wcslen(inputline))
         if ((c = inputline[cpos]) && c == cb) return cpos;
     //if (cpos > 0 && cpos == wcslen(inputline)) return real_inputline_pos;
@@ -544,7 +545,8 @@ int look_for(wchar_t cb) {
  */
 
 int look_back(wchar_t cb) {
-    int c, cpos = inputline_pos;
+    wchar_t c;
+    size_t cpos = inputline_pos;
     while (--cpos >= 0)
         if ((c = inputline[cpos]) && c == cb) return cpos;
     return -1;
@@ -556,7 +558,7 @@ int look_back(wchar_t cb) {
  * \return position if found; -1 otherwise
  */
 int first_nonblank_char() {
-    int cpos = -1;
+    size_t cpos = -1;
     while (++cpos < wcslen(inputline))
         if (inputline[cpos] && inputline[cpos] != L' ') return cpos;
     return -1;
@@ -569,7 +571,7 @@ int first_nonblank_char() {
  * \return position if found; -1 otherwise
  */
 int last_nonblank_char() {
-    int cpos = wcslen(inputline);
+    size_t cpos = wcslen(inputline);
     while (--cpos > 0)
         if (inputline[cpos] && inputline[cpos] != L' ') return cpos;
     return -1;
@@ -584,7 +586,7 @@ int last_nonblank_char() {
  */
 
 int back_word(int big_word) {
-    int c, cpos = real_inputline_pos;
+    size_t c, cpos = real_inputline_pos;
     if (inputline[cpos-1] == L' ' ) cpos--;
 
     while (cpos)
@@ -607,8 +609,8 @@ int back_word(int big_word) {
  * \return position; 0 otherwise
  */
 
-int for_word(int end_of_word, int delete, int big_word) {
-    int cpos = real_inputline_pos;
+int for_word(int end_of_word, int Delete, int big_word) {
+    size_t cpos = real_inputline_pos;
 
     if (! end_of_word) { // w or W
         while ( ++cpos < wcslen(inputline) ) 
@@ -623,7 +625,7 @@ int for_word(int end_of_word, int delete, int big_word) {
             && istext( inputline[cpos - 1] ) && ! big_word ) ) return --cpos;
     }
 
-    if (cpos > 0 && cpos >= wcslen(inputline)) return wcslen(inputline) - 1 + delete;
+    if (cpos > 0 && cpos >= wcslen(inputline)) return wcslen(inputline) - 1 + Delete;
     return 0;
 }
 
@@ -633,7 +635,7 @@ int for_word(int end_of_word, int delete, int big_word) {
  * \return none
  */
 void del_back_char() {      // x   DEL
-    int max = wcswidth(inputline, wcslen(inputline));
+    size_t max = wcswidth(inputline, wcslen(inputline));
     if (inputline_pos > max) return;
     int l = wcwidth(inputline[real_inputline_pos]);
     del_wchar(inputline, real_inputline_pos);

@@ -252,7 +252,7 @@ int ui_getch_b(wint_t * wd) {
  * \return none
  */
 
-void ui_sc_msg(char * s, int type, ...) {
+void ui_sc_msg(const char * s, int type, ...) {
     if (get_conf_int("quiet")) return;
     if (type == DEBUG_MSG && ! get_conf_int("debug")) return;
     char t[BUFFERSIZE];
@@ -308,11 +308,11 @@ void ui_sc_msg(char * s, int type, ...) {
  * \return none
  */
 void ui_do_welcome() {
-    char * msg_title = "sc-im - SpreadSheet Calculator Improvised";
-    char * msg_by = "An SC fork by Andrés Martinelli";
-    char * msg_version = rev;
-    char * msg_help  = "Press  :help<Enter>  to get help         ";
-    char * msg_help2 = "Press  <Enter>       to enter NORMAL mode";
+    const char * msg_title = "sc-im - SpreadSheet Calculator Improvised";
+    const char * msg_by = "An SC fork by Andrés Martinelli";
+    const char * msg_version = rev;
+    const char * msg_help  = "Press  :help<Enter>  to get help         ";
+    const char * msg_help2 = "Press  <Enter>       to enter NORMAL mode";
     int i;
 
     #ifdef USECOLORS
@@ -544,7 +544,7 @@ void ui_print_mult_pend() {
     // Return cursor to previous position
     wmove(input_pad, row_orig, col_orig);
     int scroll = 0;
-    if (inputline_pos > COLS - 14) scroll = inputline_pos - COLS + 14;
+    if (inputline_pos + 14 > (size_t) COLS ) scroll = inputline_pos - COLS + 14;
     ui_refresh_pad(scroll);
 
     if (status_line_empty && curmode != EDIT_MODE && get_conf_int("show_cursor")) {
@@ -585,7 +585,7 @@ void ui_show_header() {
             break;
     }
     int scroll = 0;
-    if (inputline_pos > COLS - 14) scroll += inputline_pos - COLS + 14;
+    if (inputline_pos + 14 > (size_t)COLS) scroll += inputline_pos - COLS + 14;
     wrefresh(input_win);
     ui_refresh_pad(scroll);
     return;
@@ -993,7 +993,7 @@ int ui_show_content(WINDOW * win, int nb_mobile_rows, int nb_mobile_cols) {
                     if (j == OK && cht[0].chars[0] != L'\0')
                         w = cht[0].chars[0];
                     //mvwprintw(win, winrow+k, wincol+i, "%lc", L'*');//w
-                    mvwprintw(win, winrow+k, wincol+i, "%lc", w);
+                    mvwprintw(win, winrow+k, wincol+i, "%lc", (wint_t)w);
                     i += wcwidth(w);
                 }
             }
@@ -1142,7 +1142,7 @@ void ui_show_celldetails() {
 #ifdef USECOLORS
         ui_set_ucolor(input_win, &ucolors[FILENM], DEFAULT_COLOR);
 #endif
-        char * file_name = rom->name == NULL ? "[No Name]" : rom->name;
+        const char * file_name = rom->name == NULL ? "[No Name]" : rom->name;
         mvwprintw(input_win, 0, il_pos, "%s:", file_name);
         il_pos += strlen(file_name) + 1;
 
@@ -1212,7 +1212,7 @@ void ui_show_celldetails() {
     ui_add_cell_detail(head, p1);
 
     // cut string if its too large!
-    if (strlen(head) > COLS - il_pos - 1) {
+    if (strlen(head) + il_pos + 1 > (size_t)COLS) {
         head[COLS - il_pos - 1 - 19]='>';
         head[COLS - il_pos - 1 - 18]='>';
         head[COLS - il_pos - 1 - 17]='>';
@@ -1233,7 +1233,7 @@ void ui_show_celldetails() {
  * \return none
  */
 
-void yyerror(char * err) {
+void yyerror(const char * err) {
     mvwprintw(input_pad, 0, 0, "%s: %.*s<=%s", err, linelim, line, line + linelim);
     ui_refresh_pad(0);
     return;
@@ -1287,7 +1287,7 @@ int ui_get_formated_value(struct ent ** p, int col, char * value) {
 void ui_show_text(char * val) {
     int pid;
     char px[MAXCMD];
-    char * pager;
+    const char * pager;
 
     (void) strcpy(px, "| ");
     if ( !(pager = getenv("PAGER")) )
@@ -1318,7 +1318,7 @@ void ui_show_text(char * val) {
  * UI function thats called after SIGWINCH signal.
  * \return none
  */
-void sig_winchg() {
+void sig_winchg(int) {
     if (isendwin()) return;
     endwin();
     refresh();
@@ -1377,7 +1377,7 @@ void ui_bail(lua_State *L, char * msg) {
  * parameter.
  * \return wchar_t indicating user answer
  */
-wchar_t ui_query_opt(wchar_t * initial_msg, wchar_t * valid) {
+wchar_t ui_query_opt(const wchar_t * initial_msg, const wchar_t * valid) {
     if (! wcslen(initial_msg)) return L'\0';
     sc_info("%ls", initial_msg);
     wint_t wd = -1;
@@ -1569,7 +1569,7 @@ void ui_resume() {
     set_term(sstdout);
     reset_prog_mode();
     clearok(stdscr, TRUE);
-    sig_winchg();
+    sig_winchg(0);
 
     return;
 }
@@ -1689,7 +1689,7 @@ void ui_handle_mouse(MEVENT event) {
     // if in insert or command mode, we add the selected cell to inputbar
     } else if (curmode == COMMAND_MODE || curmode == INSERT_MODE) {
         wchar_t cline [BUFFERSIZE];
-        int count;
+        size_t count;
         swprintf(cline, BUFFERSIZE, L"%s%d", coltoa(i), j);
         for(count = 0; count < wcslen(cline); count++) ins_in_line(cline[count]);
         ui_show_header();

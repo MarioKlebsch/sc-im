@@ -77,7 +77,7 @@ extern WINDOW * input_pad;
  */
 
 int load_help () {
-    register FILE * f;
+    FILE * f;
     int line;
     int c = 0, count = 0, max_width = COLS;
     char helpfile_path[BUFFERSIZE];
@@ -225,10 +225,12 @@ void help() {
             break;
 
         case 'g':
+	{
             wtimeout(input_win, TIMEOUT_CURSES);
             char c = wgetch(input_win);
             wtimeout(input_win, -1);
             if (c != 'g') break;
+	}
 
         case ctl('a'):
         case OKEY_HOME:
@@ -244,6 +246,7 @@ void help() {
             break;
 
         case ':':
+        {
             curs_set(1);
             char hline [100];
             hline[0]='\0';
@@ -273,13 +276,14 @@ void help() {
             }
             curs_set(0);
             break;
-
+        }
         case '/':
+        {
             curs_set(1);
             word_looked[0]='\0';
             mvwprintw(input_win, 0, 0, "/%s", word_looked);
             wrefresh(input_win);
-            d = wgetch(input_win);
+            int d = wgetch(input_win);
             while (d != OKEY_ENTER && d != OKEY_ESC) {
                 if (d == OKEY_BS || d == OKEY_BS2) {
                     del_char(word_looked, strlen(word_looked) - 1);
@@ -301,7 +305,7 @@ void help() {
             wrefresh(input_win);
             curs_set(0);
             break;
-
+        }
         case 'q':
             quit_help_now = TRUE;
             curs_set(0);
@@ -366,7 +370,8 @@ void find_word(char * word, char order) {
  */
 
 int show_lines() {
-    int lineno, i, k, key = 0, bold = 0 ;
+    int lineno, k, key = 0, bold = 0 ;
+    size_t i;
 
     for (lineno = 0; lineno + delta <= max && long_help[lineno + delta] && lineno < LINES - RESROW; lineno++) {
         if (strlen(word_looked))
@@ -404,8 +409,8 @@ int show_lines() {
                 ui_set_ucolor(main_win, &ucolors[NORMAL], DEFAULT_COLOR);
                 #endif
                 continue;
-            } else if (look_result != -1 && i >= look_result &&
-                i < look_result + strlen(word_looked) ) {
+            } else if (look_result != -1 && i >= (size_t)look_result &&
+                i < (size_t)look_result + strlen(word_looked) ) {
                 #ifdef USECOLORS
                 ui_set_ucolor(main_win, &ucolors[HELP_HIGHLIGHT], DEFAULT_COLOR);
                 #endif
@@ -597,4 +602,4 @@ void show_usage_and_quit(){
     put(user_conf_d, "quit_afterload", "1");
 }
 
-char * rev = "version 0.8.3-main";
+const char * rev = "version 0.8.3-main";

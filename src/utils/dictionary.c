@@ -53,7 +53,7 @@
  */
 
 struct dictionary * create_dictionary() {
-   struct dictionary * d = malloc(sizeof(struct dictionary));
+   struct dictionary * d = (struct dictionary*)malloc(sizeof(struct dictionary));
    d->len = 0;
    d->list = NULL;
 
@@ -91,7 +91,7 @@ void put(struct dictionary * d, const char * k, const char * v) {
    }
 
    // The key doesn't exists, Create it.
-   nl = malloc(sizeof(struct nlist));
+   nl = (struct nlist*)malloc(sizeof(struct nlist));
    nl->key = strdup(k);
    nl->val = strdup(v);
    nl->intval = atoi(v);
@@ -212,7 +212,7 @@ char * get_key_name(struct dictionary * d, const char * value) {
 void parse_str(struct dictionary *d, const char *str, int split_on_blanks) {
     char key[90];
     char value[90];
-    int i;
+    size_t i;
 
     while (*str != 0) {
         /* remove leading field separators */

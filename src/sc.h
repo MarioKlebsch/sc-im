@@ -124,7 +124,7 @@ struct roman {
 #define is_loading    0001
 #define is_opened     0002
 #define is_closed     0004
-#define is_empty      0010
+#define is_Empty      0010
 #define is_allocated  0020
 
 /* structure to store sheet data */
@@ -481,7 +481,7 @@ extern char * scxrealloc(char * ptr, unsigned n);
 extern char * seval(struct sheet * sh, struct ent * ent, struct enode * se);
 extern char * v_name(int row, int col);
 extern double eval(struct sheet * sh, struct ent * ent, struct enode * e);
-extern struct enode * new(int op, struct enode * a1, struct enode * a2);
+extern struct enode * New(int op, struct enode * a1, struct enode * a2);
 extern struct enode * new_const(int op, double a1);
 extern struct enode * new_range(int op, struct range_s a1);
 extern struct enode * new_str(char * s);
@@ -494,7 +494,7 @@ extern void closefile(FILE * f, int pid, int rfd);
 extern void colshow_op();
 extern struct colorpair *cpairs[8];
 extern void efree(struct enode * e);
-extern void label(struct ent * v, char * s, int flushdir);
+extern void label(struct ent * v, const char * s, int flushdir);
 
 extern double eval_result;
 extern char * seval_result;

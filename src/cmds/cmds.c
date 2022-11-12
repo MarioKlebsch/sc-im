@@ -87,9 +87,9 @@ struct ent * freeents = NULL;    // keep deleted ents around before sync_refs
  *
  * \return none
  */
-void mark_ent_as_deleted(struct ent * p, int delete) {
+void mark_ent_as_deleted(struct ent * p, int Delete) {
     if (p == NULL) return;
-    if (delete) p->flags |= is_deleted;
+    if (Delete) p->flags |= is_deleted;
 
     p->next = freeents;     /* put this ent on the front of freeents */
     freeents = p;
@@ -1638,7 +1638,7 @@ struct ent_ptr * tick(char ch) {
     int r, c;
     struct mark * m = get_mark(ch);
     if (m->sheet != NULL) sh = m->sheet;
-    struct ent_ptr * ep_result = calloc(1, sizeof(struct ent_ptr));
+    struct ent_ptr * ep_result = (struct ent_ptr*)calloc(1, sizeof(struct ent_ptr));
 
     //tick cell
     r = m->row;
@@ -2182,7 +2182,7 @@ int fsum(struct sheet * sh) {
  * \param[in] action
  * \return -1 on error; 0 otherwise
  */
-int fcopy(struct sheet * sh, char * action) {
+int fcopy(struct sheet * sh, const char * action) {
     int r, ri, rf, c, ci, cf;
     struct ent * pdest;
     struct ent * pact;
@@ -2463,7 +2463,7 @@ void fix_col_frozen(struct sheet * sh, int deltac, int ci, int cf) {
 int convert_string_to_number(int r0, int c0, int rn, int cn) {
     struct roman * roman = session->cur_doc;
     int row, col;
-    register struct ent ** pp;
+    struct ent ** pp;
     wchar_t out[FBUFLEN] = L"";
     for (row = r0; row <= rn; row++) {
         // ignore hidden rows

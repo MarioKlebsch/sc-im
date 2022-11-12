@@ -66,12 +66,12 @@ extern int shall_quit;
  */
 
 char * scxmalloc(unsigned n) {
-    //register char *ptr;
+    //char *ptr;
     //if ((ptr = malloc(n + sizeof(double))) == NULL) fatal("scxmalloc: no memory");
     //*((double *) ptr) = MAGIC;
     //return(ptr + sizeof(double));
 
-    register char *ptr;
+    char *ptr;
     ptr = (char *) malloc(n);
     if (ptr == NULL) fatal("scxmalloc: no memory");
     return (ptr);
@@ -126,7 +126,7 @@ void scxfree(char *p) {
  * \return none
  */
 
-void fatal(char * str) {
+void fatal(const char * str) {
     //fprintf(stderr,"%s\n", str);
     sc_error("%s", str);
     shall_quit = 2;

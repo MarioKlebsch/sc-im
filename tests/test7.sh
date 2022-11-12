@@ -7,7 +7,7 @@ set -e
 NAME=test7
 
 VALGRIND_CMD='valgrind -v --log-file=${NAME}_vallog --tool=memcheck --track-origins=yes --leak-check=full --show-leak-kinds=all --show-reachable=no'
-. assert.sh
+. ./assert.sh
 
 CMD='LET A7=90\nGETNUM A20\nGETNUM G20\nUNDO\nREDO\nGETNUM A20\nGETNUM G20'
 

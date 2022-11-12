@@ -92,7 +92,7 @@
 #define EDITION_CMD      1
 #define MOVEMENT_CMD     2
 
-void ui_sc_msg(char * s, int type, ...);
+void ui_sc_msg(const char * s, int type, ...);
 #define sc_error(x, ...)     ui_sc_msg(x, ERROR_MSG, ##__VA_ARGS__)
 #define sc_debug(x, ...)     ui_sc_msg(x, DEBUG_MSG, ##__VA_ARGS__)
 #define sc_info(x, ...)      ui_sc_msg(x, INFO_MSG, ##__VA_ARGS__)

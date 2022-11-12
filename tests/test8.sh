@@ -7,7 +7,7 @@ set -e
 NAME=test8
 
 VALGRIND_CMD='valgrind -v --log-file=${NAME}_vallog --tool=memcheck --track-origins=yes --leak-check=full --show-leak-kinds=all --show-reachable=no'
-. assert.sh
+. ./assert.sh
 
 CMD='DELETECOL B\nDELETECOL B\nDELETECOL B\nDELETECOL B\nDELETECOL B\nDELETECOL B\nDELETECOL B\nDELETECOL B\nDELETECOL B\nDELETECOL B\nDELETECOL B\nDELETECOL B\nGETNUM B0\nDELETEROW 2\nDELETEROW 2\nDELETEROW 2\nDELETEROW 2\nDELETEROW 2\nDELETEROW 2\nDELETEROW 2\nDELETEROW 2\nDELETEROW 2\nDELETEROW 2\nDELETEROW 2\nDELETEROW 2\nUNDO\nUNDO\nGETNUM A2'
 assert "echo -e '${CMD}' | $VALGRIND_CMD ../src/sc-im ${NAME}.sc --nocurses --nodebug --quit_afterload 2>&1 |grep -v '^$\|Interp\|Change'" "14\n13"

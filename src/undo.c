@@ -506,7 +506,7 @@ void copy_to_undostruct (struct sheet * sh, int ri, int ci, int rf, int cf, char
 
             // initialize the 'ent'
             //if (destination == NULL) y_cells->vp = malloc(sizeof(struct ent));
-            y_cells->vp = malloc(sizeof(struct ent));
+            y_cells->vp = (struct ent*)malloc(sizeof(struct ent));
             cleanent(y_cells->vp);
             y_cells->sheet = sh;
 
@@ -537,7 +537,7 @@ void copy_to_undostruct (struct sheet * sh, int ri, int ci, int rf, int cf, char
 
             // initialize the 'ent'
             //if (destination == NULL) y_cells->vp = malloc(sizeof(struct ent));
-            y_cells->vp = malloc(sizeof(struct ent));
+            y_cells->vp = (struct ent*)malloc(sizeof(struct ent));
             cleanent(y_cells->vp);
             y_cells->sheet = deps[i].sheet;
 
@@ -574,7 +574,7 @@ void copy_to_undostruct (struct sheet * sh, int ri, int ci, int rf, int cf, char
 
 void save_yl_pointer_after_calloc(struct ent_ptr * e) {
     if (undo_item.allocations == NULL) {
-        undo_item.allocations = malloc(sizeof(struct allocation_list));
+        undo_item.allocations = (struct allocation_list*)malloc(sizeof(struct allocation_list));
         undo_item.allocations->size = 0;
         undo_item.allocations->items = NULL;
     }
@@ -612,16 +612,16 @@ void copy_cell_to_undostruct (struct ent_ptr * e_ptr, struct sheet * sh_ori, str
 
     // if reached here, malloc and add to undolist
     struct ent_ptr * new_ptr = e_ptr;
-    struct ent * new = malloc(sizeof(struct ent));
+    struct ent * New = (struct ent*)malloc(sizeof(struct ent));
 
     // initialize the 'ent'
-    cleanent(new);
+    cleanent(New);
 
     // Copy 'ori' cell contents to 'new' ent
-    copyent(new, sh_ori, ori, 0, 0, 0, 0, 0, 0, 'u');
+    copyent(New, sh_ori, ori, 0, 0, 0, 0, 0, 0, 'u');
 
     new_ptr->sheet = sh_ori;
-    new_ptr->vp = new;
+    new_ptr->vp = New;
 
     // Append 'ent' element at the beginning
     //TODO: add it ordered?

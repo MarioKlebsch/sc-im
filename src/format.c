@@ -134,8 +134,8 @@
 #define EOS      '\0'
 #define MAXBUF   256
 
-static char * fmt_int(char * val, char * fmt, int comma, int negative);
-static char * fmt_frac(char * val, char * fmt, int lprecision);
+static char * fmt_int(const char * val, const char * fmt, int comma, int negative);
+static char * fmt_frac(const char * val, const char * fmt, int lprecision);
 static char * fmt_exp(int val, char * fmt);
 static void reverse(char * buf);
 char * colformat[COLFORMATS];
@@ -152,8 +152,8 @@ char * colformat[COLFORMATS];
  *
  * returns: ret
  */
-int format(char *fmt, int lprecision, double val, char *buf, int buflen) {
-    register char *cp;
+int format(char *fmt, int lprecision, double val, char *buf, size_t buflen) {
+    char *cp;
     char *tmp, *tp;
     int comma = FALSE, negative = FALSE;
     char *integer = NULL, *decimal = NULL;
@@ -164,7 +164,7 @@ int format(char *fmt, int lprecision, double val, char *buf, int buflen) {
     static char * mantissa = NULL;
     static char * tmpfmt1 = NULL, * tmpfmt2 = NULL, * exptmp = NULL;
     static unsigned mantlen = 0, fmtlen = 0;
-    char * fraction = NULL;
+    const char * fraction = NULL;
     int zero_pad = 0;
 
     if (fmt == NULL)
@@ -305,7 +305,7 @@ int format(char *fmt, int lprecision, double val, char *buf, int buflen) {
     if (*cp == dpoint) {
         fraction = cp + 1;
         *cp = EOS;
-        cp = fraction + strlen(fraction) - 1;
+        cp = cp + 1 + strlen(fraction) - 1;
         for (; zero_pad > 0 && *cp != EOS; zero_pad--, cp--) { // scim
         //for (; zero_pad > 0; zero_pad--, cp--) { // sc
             if (*cp == '0')
@@ -322,8 +322,8 @@ int format(char *fmt, int lprecision, double val, char *buf, int buflen) {
     {
     static char * citmp = NULL, * cftmp = NULL;
     static unsigned cilen = 0, cflen = 0;
-    char * ci, * cf, * ce;
-    int len_ci, len_cf, len_ce;
+    const char * ci, * cf, * ce;
+    size_t len_ci, len_cf, len_ce;
     int ret = FALSE;
 
     ci = fmt_int(integer, fmt, comma, negative);
@@ -367,11 +367,11 @@ int format(char *fmt, int lprecision, double val, char *buf, int buflen) {
  * \param[in] negative TRUE if the value is actually negative
  * \return none
  */
-static char * fmt_int(char *val, char *fmt, int comma, int negative) {
+static char * fmt_int(const char *val, const char *fmt, int comma, int negative) {
 
     int digit, f, v;
     int thousands = 0;
-    char * cp;
+    const char * cp;
     static char buf[MAXBUF];
     char * bufptr = buf;
 
@@ -429,11 +429,11 @@ static char * fmt_int(char *val, char *fmt, int comma, int negative) {
  *
  * \return none
  */
-static char * fmt_frac(char *val, char *fmt, int lprecision) {
+static char * fmt_frac(const char *val, const char *fmt, int lprecision) {
 
     static char buf[MAXBUF];
-    register char * bufptr = buf;
-    register char * fmtptr = fmt, *valptr = val;
+    char * bufptr = buf;
+    const char * fmtptr = fmt, *valptr = val;
 
     *bufptr++ = dpoint;
     while (*fmtptr != EOS) {
@@ -469,7 +469,7 @@ static char * fmt_frac(char *val, char *fmt, int lprecision) {
  */
 static char * fmt_exp(int val, char *fmt) {
     static char buf[MAXBUF];
-    register char *bufptr = buf;
+    char *bufptr = buf;
     char valbuf[64];
     int negative = FALSE;
 
@@ -499,9 +499,9 @@ static char * fmt_exp(int val, char *fmt) {
  *
  * \return none
  */
-static void reverse(register char *buf) {
-    register char *cp = buf + strlen(buf) - 1;
-    register char tmp;
+static void reverse(char *buf) {
+    char *cp = buf + strlen(buf) - 1;
+    char tmp;
 
     while (buf < cp) {
         tmp = *cp;
@@ -548,6 +548,11 @@ static void reverse(register char *buf) {
 #define REFMTLDATE  4
 #endif
 
+#ifdef __cplusplus
+extern "C" double pow(double x, double y);
+#else
+double pow(double x, double y);
+#endif
 /**
  * \brief engformat()
  *
@@ -560,15 +565,15 @@ static void reverse(register char *buf) {
  *
  * \return none
  */
-int engformat(int fmt, int width, int lprecision, double val, char *buf, int buflen) {
+int engformat(int fmt, size_t width, int lprecision, double val, char *buf, size_t buflen) {
 
-    static char * engmult[] = {
+    static const char * engmult[] = {
     "-18", "-15", "-12", "-09", "-06", "-03",
     "+00",
     "+03", "+06", "+09", "+12", "+15", "+18"
     };
     int engind = 0;
-    double engmant, pow(), engabs, engexp;
+    double engmant, engabs, engexp;
 
     if (buflen < width) return (FALSE);
     if (fmt >= 0 && fmt < COLFORMATS && colformat[fmt])
@@ -607,7 +612,7 @@ int engformat(int fmt, int width, int lprecision, double val, char *buf, int buf
         }
     }
     if (fmt == REFMTDATE) {
-        int i;
+        size_t i;
         time_t secs;
 
         if (buflen < 9) {
@@ -621,7 +626,7 @@ int engformat(int fmt, int width, int lprecision, double val, char *buf, int buf
         }
     }
     if (fmt == REFMTLDATE) {
-        int i;
+        size_t i;
         time_t secs;
 
         if (buflen < 11) {

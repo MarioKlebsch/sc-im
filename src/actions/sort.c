@@ -81,7 +81,7 @@ void sortrange(struct sheet * sh, struct ent * left, struct ent * right, char * 
     struct roman * roman = session->cur_doc;
     int minr, minc, maxr, maxc, r, c;
     int * rows, col = 0;
-    int cp = 0;
+    size_t cp = 0;
 
     minr = left->row < right->row ? left->row : right->row;
     minc = left->col < right->col ? left->col : right->col;

@@ -827,7 +827,7 @@ double dolmin(struct sheet * sh, struct ent * e, struct enode * ep) {
  */
 char * docat(char * s1, char * s2) {
     char * p;
-    char * arg1, * arg2;
+    const char * arg1, * arg2;
 
     if ( !s1 && !s2 )
         return ((char *) 0);
@@ -850,7 +850,7 @@ char * docat(char * s1, char * s2) {
  * \param[in] fmstr
  * \return char *
  */
-char * dodate(time_t tloc, char * fmtstr) {
+char * dodate(time_t tloc, const char * fmtstr) {
     char buff[FBUFLEN];
     char * p;
 
@@ -992,7 +992,7 @@ char * doext(struct sheet * sh, struct enode *se) {
  */
 char * dosval(struct sheet * sh, char * colstr, double rowdoub) {
     struct ent * ep;
-    char * llabel;
+    const char * llabel;
 
     //llabel = (ep = getent(colstr, rowdoub, 0)) ? (ep -> label) : "";
 
@@ -1010,7 +1010,7 @@ char * dosval(struct sheet * sh, char * colstr, double rowdoub) {
  * \param[in] new
  * \return char *
  */
-char * doreplace(char * source, char * old, char * newstr) {
+char * doreplace(const char * source, const char * old, const char * newstr) {
     return str_replace(source, old, newstr);
 }
 
@@ -1022,7 +1022,7 @@ char * doreplace(char * source, char * old, char * newstr) {
  * \param[in] v2
  * \return char *
  */
-char * dosubstr(char * s, int v1, int v2) {
+char * dosubstr(char * s, size_t v1, size_t v2) {
     char * s1, * s2;
     char * p;
 

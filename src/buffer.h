@@ -60,5 +60,5 @@ void erase_buf (struct block * buf);
 int get_bufsize(struct block * buf);
 int get_pbuflen(struct block * buf);
 int get_bufval(struct block * buf, int d);
-int find_val(struct block * buf, int value);
+int find_val(struct block * buf, wint_t value);
 struct block * dequeue (struct block * buf);

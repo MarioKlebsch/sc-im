@@ -333,7 +333,7 @@ static struct range * rng_base;
 void add_range(char * name, struct ent_ptr left, struct ent_ptr right, int is_range) {
     struct roman * roman = session->cur_doc;
     struct sheet * sh = roman->cur_sh;
-    register char * p;
+    char * p;
     int minr, minc, maxr, maxc;
     int minrf, mincf, maxrf, maxcf;
     struct range * prev = 0;
@@ -456,8 +456,8 @@ void del_range(struct ent * left, struct ent * right) {
 */
 
 void clean_range() { // Used in 'erasedb'
-    register struct range *r;
-    register struct range *nextr;
+    struct range *r;
+    struct range *nextr;
 
     r = rng_base;
     rng_base = (struct range *)0;
@@ -482,7 +482,7 @@ void clean_range() { // Used in 'erasedb'
 * \return none
 */
 
-int find_range(char * name, int len, struct ent * lmatch, struct ent * rmatch, struct range ** rng) {
+int find_range(char * name, size_t len, struct ent * lmatch, struct ent * rmatch, struct range ** rng) {
     struct range * r;
 
     int cmp;

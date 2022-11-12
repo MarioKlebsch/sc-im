@@ -580,7 +580,7 @@ int same_ucolor(struct ucolor * u, struct ucolor * v) {
 int redefine_color(char * color, int r, int g, int b) {
     struct roman * roman = session->cur_doc;
     #if defined(NCURSES) && defined(USECOLORS)
-    extern void sig_winchg();
+    extern void sig_winchg(int);
     if (
         ! get_conf_int("nocurses")
         && has_colors() && can_change_color()
@@ -595,7 +595,7 @@ int redefine_color(char * color, int r, int g, int b) {
 #else
            if (init_color(atoi(s), RGB(r, g, b)) == 0) {
 #endif
-               sig_winchg();
+               sig_winchg(0);
                if (! roman->loading) sc_info("Color %s redefined to %d %d %d.", color, r, g, b);
                return 0;
            }
@@ -647,7 +647,7 @@ int define_color(char * color, int r, int g, int b) {
         sc_error("Could not define color %s. There are already 24 custom colors defined.", color);
         return -1;
     } else { // we create a new custom color
-        cc = malloc (sizeof(struct custom_color));
+        cc = (struct custom_color*)malloc (sizeof(struct custom_color));
         cc->number = number_defined_colors+1;
         cc->name =  (char *) malloc (sizeof(char) * (strlen(color) + 1));
         strcpy(cc->name, color);

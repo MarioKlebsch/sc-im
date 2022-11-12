@@ -70,7 +70,7 @@ extern struct session * session;
 void hide_row(int from_row, int arg) {
     struct roman * roman = session->cur_doc;
     struct sheet * sh = roman->cur_sh;
-    register int r2;
+    int r2;
 
     r2 = from_row + arg - 1;
     if (from_row < 0 || from_row > r2) {

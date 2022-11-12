@@ -591,13 +591,13 @@ void handle_argv_exports() {
  * \return none
  */
 void signals() {
-    void sig_int();
-    void sig_abrt();
-    void sig_term();
-    void sig_nopipe();
-    void sig_winchg();
-    void sig_tstp();
-    void sig_cont();
+    void sig_int(int);
+    void sig_abrt(int);
+    void sig_term(int);
+    void sig_nopipe(int);
+    void sig_winchg(int);
+    void sig_tstp(int);
+    void sig_cont(int);
 
     signal(SIGINT, sig_int);
     signal(SIGABRT, sig_abrt);
@@ -617,7 +617,7 @@ void signals() {
  * \brief Handles the SIGPIPE signal
  * \return none
  */
-void sig_nopipe() {
+void sig_nopipe(int) {
     sc_error("brokenpipe!");
     brokenpipe = TRUE;
     return;
@@ -628,7 +628,7 @@ void sig_nopipe() {
  * \brief Handles the SIGTSTP signal
  * \return none
  */
-void sig_tstp() {
+void sig_tstp(int) {
     //sc_info("Got SIGTSTP.");
     def_prog_mode();
     endwin();
@@ -641,9 +641,9 @@ void sig_tstp() {
  * \brief Handles the SIGCONT signal
  * \return none
  */
-void sig_cont() {
+void sig_cont(int) {
     signal(SIGTSTP, sig_tstp); /* set handler back to this */
-    sig_winchg();
+    sig_winchg(0);
     reset_prog_mode();
     refresh();
     ui_update(TRUE);
@@ -655,7 +655,7 @@ void sig_cont() {
  * \brief Handles the SIGINT signal
  * \return none
  */
-void sig_int() {
+void sig_int(int) {
     if ( ! get_conf_int("debug")) {
         sc_error("Got SIGINT. Press «:q<Enter>» to quit sc-im");
     } else if (get_bufsize(buffer)) {
@@ -671,7 +671,7 @@ void sig_int() {
  * \brief Handles the SIGABRT signal
  * \return none
  */
-void sig_abrt() {
+void sig_abrt(int) {
     sc_error("Error !!! Quitting sc-im.");
     shall_quit = -1; // error !
     return;
@@ -682,7 +682,7 @@ void sig_abrt() {
  * \brief Handles the SIGABRT signal
  * \return none
  */
-void sig_term() {
+void sig_term(int) {
     sc_error("Got SIGTERM signal. Quitting sc-im.");
     shall_quit = 2;
     return;

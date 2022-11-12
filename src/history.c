@@ -192,9 +192,9 @@ void load_history(struct history * h, wchar_t mode) {
  * \return 0 on success; -1 otherwise
  */
 
-int save_history(struct history * h, char * mode) {
+int save_history(struct history * h, const char * mode) {
     char infofile [PATHLEN];
-    char * home;
+    const char * home;
     FILE * f;
     int i;
     struct hlist * nl = h->list;
@@ -311,7 +311,7 @@ int move_item_from_history_by_str(struct history * h, wchar_t * item, int pos) {
  * \return none
  */
 
-void add(struct history * h, wchar_t * line) {
+void add(struct history * h, const wchar_t * line) {
     struct hlist * nl = (struct hlist *) malloc(sizeof(struct hlist));
 
     // Save the line

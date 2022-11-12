@@ -62,7 +62,7 @@ typedef struct srange srange;
 extern srange * ranges;
 
 srange * create_range(char c, char d, struct ent * tl, struct ent * br);
-int find_range(char * name, int len, struct ent * lmatch, struct ent * rmatch, struct range ** rng);
+int find_range(char * name, size_t len, struct ent * lmatch, struct ent * rmatch, struct range ** rng);
 
 void unselect_ranges();
 void free_ranges ();

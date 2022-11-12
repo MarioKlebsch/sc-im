@@ -7,7 +7,7 @@ set -e
 NAME=test4
 
 VALGRIND_CMD='valgrind -v --log-file=${NAME}_vallog --tool=memcheck --track-origins=yes --leak-check=full --show-leak-kinds=all --show-reachable=no'
-. assert.sh
+. ./assert.sh
 
 CMD='LET A2 = 1\nUNDO\nGETNUM A0\nGETNUM {"dos"}!B3'
 assert "echo -e '${CMD}' | $VALGRIND_CMD ../src/sc-im ${NAME}.sc --nocurses --nodebug --quit_afterload 2>&1 |grep -v '^$\|Interp\|left\|Change'" "2.3\n0"

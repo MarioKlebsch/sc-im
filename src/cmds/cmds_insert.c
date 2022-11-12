@@ -91,7 +91,7 @@ void do_insertmode(struct block * sb) {
         return;
 
     } else if (sb->value == OKEY_RIGHT) {  // RIGHT
-        int max = wcswidth(inputline, wcslen(inputline));
+        size_t max = wcswidth(inputline, wcslen(inputline));
         if (inputline_pos < max) {
             int l = wcwidth(inputline[real_inputline_pos++]);
             inputline_pos += l;
@@ -165,7 +165,7 @@ void do_insertmode(struct block * sb) {
 #endif
 
     } else if (sb->value == OKEY_DEL) {    // DEL
-        int max = wcswidth(inputline, wcslen(inputline));
+        size_t max = wcswidth(inputline, wcslen(inputline));
         if (inputline_pos > max) return;
         del_wchar(inputline, real_inputline_pos);
 #ifdef INS_HISTORY_FILE
@@ -274,7 +274,8 @@ void do_insertmode(struct block * sb) {
     } else if (sb->value == ctl('r') && get_bufsize(sb) == 2 &&        // C-r      // FIXME ???
         (sb->pnext->value - (L'a' - 1) < 1 || sb->pnext->value > 26)) {
         wchar_t cline [BUFFERSIZE];
-        int i, r = get_mark(sb->pnext->value)->row;
+        size_t i;
+	int r = get_mark(sb->pnext->value)->row;
         if (r != -1) {
             swprintf(cline, BUFFERSIZE, L"%s%d", coltoa(get_mark(sb->pnext->value)->col), r);
         } else {

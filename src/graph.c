@@ -281,7 +281,7 @@ void print_vertexs() {
    vertexT * temp = graph->vertices;
    edgeT * etemp;
    det[0]='\0';
-   int msg_size = BUFFERSIZE;
+   size_t msg_size = BUFFERSIZE;
    char * msg = (char *) malloc(msg_size);
    msg[0]='\0';
    strcpy(msg, "Content of graph:\n");

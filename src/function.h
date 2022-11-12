@@ -66,11 +66,11 @@ double dolmax(struct sheet * sh, struct ent * e, struct enode * ep);
 double dolmin(struct sheet * sh, struct ent * e, struct enode * ep);
 char * docat(char * s1, char * s2);
 #include <time.h>
-char * dodate(time_t tloc, char * fmtstr);
+char * dodate(time_t tloc, const char * fmtstr);
 char * dofmt(char * fmtstr, double v);
 char * doext(struct sheet * sh, struct enode * se);
 char * dosval(struct sheet * sh, char * colstr, double rowdoub);
-char * dosubstr(char * s, int v1, int v2);
+char * dosubstr(char * s, size_t v1, size_t v2);
 char * docase(int acase, char * s);
 char * docapital(char * s);
 double doevaluate(char * s);
@@ -79,7 +79,7 @@ double rint(double d);
 double dorow(struct enode * ep);
 double docol(struct enode * ep);
 double doascii(char * s);
-char * doreplace(char * source, char * old, char * new_);
+char * doreplace(const char * source, const char * old, const char * new_);
 char * dochr(double ascii);
 
 #define dtr(x) ((x)*(M_PI/(double)180.0))

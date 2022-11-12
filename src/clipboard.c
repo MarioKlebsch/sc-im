@@ -70,8 +70,8 @@ int paste_from_clipboard() {
     if (!clipboard_cmd || !*clipboard_cmd) return -1;
 
     // create tmp file
-    char template[] = "/tmp/sc-im-clipboardXXXXXX";
-    int fd = mkstemp(template);
+    char Template[] = "/tmp/sc-im-clipboardXXXXXX";
+    int fd = mkstemp(Template);
     if (fd == -1) {
         sc_error("Error while pasting from clipboard");
         return -1;
@@ -82,11 +82,16 @@ int paste_from_clipboard() {
 
     // copy content from clipboard to temp file
     char syscmd[PATHLEN];
-    int ret = snprintf(syscmd, PATHLEN, "%s >> %s", clipboard_cmd, template);
+    int ret = snprintf(syscmd, PATHLEN, "%s >> %s", clipboard_cmd, Template);
     if (ret < 0 || ret >= PATHLEN) {
         sc_error("Error while pasting from clipboard");
         ret = -1;
-        goto out;
+        // close file descriptor
+        close(fd);
+
+        // remove temp file
+        unlink(Template);
+        return ret;
     }
     ret = 0;
     system(syscmd);
@@ -133,12 +138,11 @@ int paste_from_clipboard() {
     if (get_conf_int("autocalc")) EvalAll();
     sc_info("Content pasted from clipboard");
 
-out:
     // close file descriptor
     close(fd);
 
     // remove temp file
-    unlink(template);
+    unlink(Template);
     return ret;
 }
 
@@ -152,8 +156,8 @@ int copy_to_clipboard(int r0, int c0, int rn, int cn) {
     if (!clipboard_cmd || !*clipboard_cmd) return -1;
 
     // create tmp file
-    char template[] = "/tmp/sc-im-clipboardXXXXXX";
-    int fd = mkstemp(template);
+    char Template[] = "/tmp/sc-im-clipboardXXXXXX";
+    int fd = mkstemp(Template);
     if (fd == -1) {
         sc_error("Error while copying to clipboard");
         return -1;
@@ -168,7 +172,7 @@ int copy_to_clipboard(int r0, int c0, int rn, int cn) {
 
     // copy to clipboard
     char syscmd[PATHLEN];
-    int ret = snprintf(syscmd, PATHLEN, "%s %s", clipboard_cmd, template);
+    int ret = snprintf(syscmd, PATHLEN, "%s %s", clipboard_cmd, Template);
     if (ret < 0 || ret >= PATHLEN) {
         sc_error("Error while copying to clipboard");
         ret = -1;
@@ -182,7 +186,7 @@ int copy_to_clipboard(int r0, int c0, int rn, int cn) {
     close(fd);
 
     // remove temp file
-    unlink(template);
+    unlink(Template);
 
     return ret;
 }
@@ -205,7 +209,7 @@ int save_plain(FILE * fout, int r0, int c0, int rn, int cn) {
     struct roman * roman = session->cur_doc;
     int conf_clipboard_delimited_tab = get_conf_int("copy_to_clipboard_delimited_tab");
     int row, col;
-    register struct ent ** pp;
+    struct ent ** pp;
     wchar_t out[FBUFLEN] = L"";
     char num [FBUFLEN] = "";
     char text[FBUFLEN] = "";

@@ -250,7 +250,7 @@ map * get_last_map() {
  * \return position of a mapping for some mode if it already exists; -1 otherwise
  */
 
-int exists_map(char * in, int mode) {
+int exists_map(char * in, unsigned int mode) {
     map * m = maps;
     char str_in[MAXMAPITEM] = "";
     int pos = -1;
@@ -324,7 +324,7 @@ void add_map(char * in, char * out, int mode, short recursive) {
  * \return none
  */
 
-void del_map(char * in, int mode) {
+void del_map(char * in, unsigned int mode) {
     map * ant;
     map * m = maps;
 

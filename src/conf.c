@@ -233,11 +233,11 @@ int change_config_parameter(wchar_t * inputline) {
         sc_error("Invalid command: \'%ls\'", inputline);
         return -1;
     }
-    char * value_bef = malloc(sizeof(char)*90);
+    char * value_bef = (char*)malloc(sizeof(char)*90);
     value_bef[0] = '\0';
-    char * key = malloc(sizeof(char)*90);
+    char * key = (char*)malloc(sizeof(char)*90);
     key[0] = '\0';
-    char * value_aft = malloc(sizeof(char)*90);
+    char * value_aft = (char*)malloc(sizeof(char)*90);
     value_aft[0] = '\0';
 
     strcpy(key, oper);

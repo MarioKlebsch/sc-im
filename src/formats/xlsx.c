@@ -376,7 +376,7 @@ void get_sheet_data(xmlDocPtr doc, xmlDocPtr doc_strings, xmlDocPtr doc_styles) 
  * \return none
  */
 
-int open_xlsx(char * fname, char * encoding) {
+int open_xlsx(const char * fname, const char * encoding) {
     //struct roman * roman = session->cur_doc;
     //struct sheet * sh = roman->cur_sh;
     struct zip * za;
@@ -394,7 +394,7 @@ int open_xlsx(char * fname, char * encoding) {
     }
 
     // open xl/sharedStrings.xml
-    char * name = "xl/sharedStrings.xml";
+    const char * name = "xl/sharedStrings.xml";
     zf = zip_fopen(za, name, ZIP_FL_UNCHANGED);
     char * strings = NULL;
     if (zf) {
@@ -563,7 +563,7 @@ int open_xlsx(char * fname, char * encoding) {
  * \param[in] filename
  * \return none
  */
-int export_xlsx(char * filename) {
+int export_xlsx(const char * filename) {
     int row, col;
     struct ent ** pp;
     struct roman * roman = session->cur_doc;

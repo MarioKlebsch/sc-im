@@ -194,7 +194,7 @@ int modcheck() {
  * \details This function checks the type of a file as well as txtdelim conf value
  * \return one of , ; \t |
  */
-char get_delim(char *type) {
+char get_delim(const char *type) {
     char delim = ',';
     if (!strcasecmp(type, "tsv") || !strcasecmp(type, "tab"))
         delim = '\t';
@@ -276,7 +276,7 @@ int savefile() {
     }
 #endif
 
-    if (doc->name == NULL) doc->name = malloc(sizeof(char)*PATHLEN);
+    if (doc->name == NULL) doc->name = (char*)malloc(sizeof(char)*PATHLEN);
     curfile = doc->name;
     // copy newfilename to curfile
     if (wcslen(inputline) > 2) {
@@ -508,7 +508,7 @@ void write_fd(FILE * f, struct roman * doc) {
                         if ((*pp)->ucolor->fg != NONE_COLOR) {
                             if ((*pp)->ucolor->fg <= 8) {
                                 linelim=0;
-                                struct enode * e = new((*pp)->ucolor->fg, (struct enode *)0, (struct enode *)0);
+                                struct enode * e = New((*pp)->ucolor->fg, (struct enode *)0, (struct enode *)0);
                                 decompile(e, 0);
                                 uppercase(line);
                                 del_char(line, 0);
@@ -522,7 +522,7 @@ void write_fd(FILE * f, struct roman * doc) {
                         if ((*pp)->ucolor->bg != NONE_COLOR) {
                             if ((*pp)->ucolor->bg <= WHITE) {
                                 linelim=0;
-                                struct enode * e = new((*pp)->ucolor->bg, (struct enode *)0, (struct enode *)0);
+                                struct enode * e = New((*pp)->ucolor->bg, (struct enode *)0, (struct enode *)0);
                                 decompile(e, 0);
                                 uppercase(line);
                                 del_char(line, 0);
@@ -710,11 +710,11 @@ void write_cells(FILE * f, struct roman * doc, struct sheet * sh, int r0, int c0
                 }
                 if ((*pp)->trigger != NULL) {
                     struct trigger * t = (*pp)->trigger;
-                    char * mode = NULL;
+                    const char * mode = NULL;
                     if ((t->flag & (TRG_READ | TRG_WRITE)) == (TRG_READ | TRG_WRITE)) mode = "RW";
                     else if (t->flag & TRG_WRITE) mode = "W";
                     else if (t->flag & TRG_READ) mode = "R";
-                    char * type = NULL;
+                    const char * type = NULL;
                     if (t->flag & TRG_LUA) type = "LUA";
                     else type = "C";
                     fprintf(f, "trigger %s%d \"mode=%s type=%s file=%s function=%s\"\n", coltoa(c), r, mode, type, t->file, t->function);
@@ -740,7 +740,7 @@ void write_cells(FILE * f, struct roman * doc, struct sheet * sh, int r0, int c0
 sc_readfile_result readfile(char * fname, int eraseflg) {
     struct roman * roman = session->cur_doc;
     char * curfile = roman->name;
-    if (! strlen(fname)) return 0;
+    if (! strlen(fname)) return SC_READFILE_ERROR;
     roman->loading = 1;
 
 #ifdef AUTOBACKUP
@@ -778,7 +778,7 @@ sc_readfile_result readfile(char * fname, int eraseflg) {
             case L'R':
                 ;
                 int len = strlen(fname);
-                if (!len) return 0;
+                if (!len) return SC_READFILE_ERROR;
                 char * pstr = strrchr(fname, '/');
                 int pos = pstr == NULL ? -1 : pstr - fname;
                 char bkpname[len+6];
@@ -793,7 +793,7 @@ sc_readfile_result readfile(char * fname, int eraseflg) {
 #endif
 
     // Check if file is a correct format
-    int len = strlen(fname);
+    size_t len = strlen(fname);
     if (! strcmp( & fname[len-3], ".sc") ||
         (len >= strlen(CONFIG_FILE) && ! strcasecmp( & fname[len-strlen(CONFIG_FILE)], CONFIG_FILE))) {
         // pass
@@ -805,7 +805,7 @@ sc_readfile_result readfile(char * fname, int eraseflg) {
         #else
         open_xlsx(fname, "UTF-8");
         if (roman->name != NULL) free(roman->name);
-        roman->name = malloc(sizeof(char)*PATHLEN);
+        roman->name = (char*)malloc(sizeof(char)*PATHLEN);
         strcpy(roman->name, fname);
         roman->modflg = 0;
         #endif
@@ -820,7 +820,7 @@ sc_readfile_result readfile(char * fname, int eraseflg) {
         #else
         open_ods(fname, "UTF-8");
         if (roman->name != NULL) free(roman->name);
-        roman->name = malloc(sizeof(char)*PATHLEN);
+        roman->name = (char*)malloc(sizeof(char)*PATHLEN);
         strcpy(roman->name, fname);
         roman->modflg = 0;
         #endif
@@ -835,7 +835,7 @@ sc_readfile_result readfile(char * fname, int eraseflg) {
         open_xls(fname, "UTF-8");
         roman->modflg = 0;
         if (roman->name != NULL) free(roman->name);
-        roman->name = malloc(sizeof(char)*PATHLEN);
+        roman->name = (char*)malloc(sizeof(char)*PATHLEN);
         strcpy(roman->name, fname);
         #endif
         roman->loading = 0;
@@ -848,7 +848,7 @@ sc_readfile_result readfile(char * fname, int eraseflg) {
 
         import_csv(fname, get_delim(&fname[len-3])); // csv tsv tab txt delim import
         if (roman->name != NULL) free(roman->name);
-        roman->name = malloc(sizeof(char)*PATHLEN);
+        roman->name = (char*)malloc(sizeof(char)*PATHLEN);
         strcpy(roman->name, fname);
         roman->modflg = 0;
         roman->loading = 0;
@@ -860,7 +860,7 @@ sc_readfile_result readfile(char * fname, int eraseflg) {
 
       import_markdown(fname);
       if (roman->name != NULL) free(roman->name);
-      roman->name = malloc(sizeof(char)*PATHLEN);
+      roman->name = (char*)malloc(sizeof(char)*PATHLEN);
       strcpy(roman->name, fname);
       roman->modflg = 0;
       roman->loading = 0;
@@ -874,7 +874,7 @@ sc_readfile_result readfile(char * fname, int eraseflg) {
 
     // We open an 'sc' format file
     // open fname for reading
-    register FILE * f;
+    FILE * f;
     char save[PATHLEN];
     if (*fname == '\0') fname = curfile;
     (void) strcpy(save, fname);
@@ -883,7 +883,7 @@ sc_readfile_result readfile(char * fname, int eraseflg) {
         roman->loading = 0;
         if (strstr(save, "scimrc") == NULL) {
             if (roman->name != NULL) free(roman->name);
-            roman->name = malloc(sizeof(char)*PATHLEN);
+            roman->name = (char*)malloc(sizeof(char)*PATHLEN);
             strcpy(roman->name, save);
         }
         return SC_READFILE_DOESNTEXIST;
@@ -904,7 +904,7 @@ sc_readfile_result readfile(char * fname, int eraseflg) {
     }
     if (strstr(save, "scimrc") == NULL) {
         if (roman->name != NULL) free(roman->name);
-        roman->name = malloc(sizeof(char)*PATHLEN);
+        roman->name = (char*)malloc(sizeof(char)*PATHLEN);
         strcpy(roman->name, save);
     }
     EvalAll();
@@ -919,7 +919,7 @@ sc_readfile_result readfile(char * fname, int eraseflg) {
  * \return path
  */
 char * findhome(char * path) {
-    static char * HomeDir = NULL;
+    static const char * HomeDir = NULL;
 
     if (* path == '~') {
         char * pathptr;
@@ -1096,7 +1096,7 @@ void print_options(FILE *f) {
  */
 int import_csv(char * fname, char d) {
     struct roman * roman = session->cur_doc;
-    register FILE * f;
+    FILE * f;
     int r = 0, c = 0, cf = 0;
     wchar_t line_interp[FBUFLEN] = L"";
     char * token;
@@ -1231,7 +1231,7 @@ int next_unquot_delim(char *start, char d) {
  */
 int import_markdown(char * fname) {
     struct roman * roman = session->cur_doc;
-    register FILE * f;
+    FILE * f;
     int r = 0, c = 0, cf = 0;
     wchar_t line_interp[FBUFLEN] = L"";
     wchar_t line_interp_align[FBUFLEN] = L"";
@@ -1485,7 +1485,7 @@ void export_markdown(char * fname, int r0, int c0, int rn, int cn) {
     struct roman * roman = session->cur_doc;
     FILE * f;
     int row, col;
-    register struct ent ** pp;
+    struct ent ** pp;
     int pid;
     wchar_t out[FBUFLEN] = L"";
 
@@ -1587,23 +1587,23 @@ void export_markdown(char * fname, int r0, int c0, int rn, int cn) {
 
                     pad_and_align (text, num, roman->cur_sh->fwidth[col], align, 0, out, roman->cur_sh->row_format[row]);
 
-                    wchar_t new[wcslen(out)+1];
-                    wcscpy(new, out);
-                    int cw = count_width_widestring(new, roman->cur_sh->fwidth[col]);
+                    wchar_t New[wcslen(out)+1];
+                    wcscpy(New, out);
+                    size_t cw = count_width_widestring(New, roman->cur_sh->fwidth[col]);
 
-                    if (wcslen(new) > cw && rowfmt) {
+                    if (wcslen(New) > cw && rowfmt) {
                         int count_row = 0;
                         for (count_row = 0; count_row < rowfmt; count_row++) {
-                            cw = count_width_widestring(new, roman->cur_sh->fwidth[col]);
-                            if (cw) del_range_wchars(new, 0, cw-1);
-                            int whites = roman->cur_sh->fwidth[col] - wcslen(new);
-                            while (whites-- > 0) add_wchar(new, L' ', wcslen(new));
+                            cw = count_width_widestring(New, roman->cur_sh->fwidth[col]);
+                            if (cw) del_range_wchars(New, 0, cw-1);
+                            int whites = roman->cur_sh->fwidth[col] - wcslen(New);
+                            while (whites-- > 0) add_wchar(New, L' ', wcslen(New));
                         }
-                        new[cw] = L'\0';
-                        fprintf (f, "%ls", new);
-                    } else if (! rowfmt && wcslen(new)) {
-                        if (get_conf_int("truncate") || !get_conf_int("overlap")) new[cw] = L'\0';
-                        fprintf (f, "%ls", new);
+                        New[cw] = L'\0';
+                        fprintf (f, "%ls", New);
+                    } else if (! rowfmt && wcslen(New)) {
+                        if (get_conf_int("truncate") || !get_conf_int("overlap")) New[cw] = L'\0';
+                        fprintf (f, "%ls", New);
                     } else {
                         fprintf (f, "%*s", roman->cur_sh->fwidth[col], " ");
                     }
@@ -1639,7 +1639,7 @@ void export_plain(char * fname, int r0, int c0, int rn, int cn) {
     struct roman * roman = session->cur_doc;
     FILE * f;
     int row, col;
-    register struct ent ** pp;
+    struct ent ** pp;
     int pid;
     wchar_t out[FBUFLEN] = L"";
 
@@ -1714,23 +1714,23 @@ void export_plain(char * fname, int r0, int c0, int rn, int cn) {
 
                     pad_and_align (text, num, roman->cur_sh->fwidth[col], align, 0, out, roman->cur_sh->row_format[row]);
 
-                    wchar_t new[wcslen(out)+1];
-                    wcscpy(new, out);
-                    int cw = count_width_widestring(new, roman->cur_sh->fwidth[col]);
+                    wchar_t New[wcslen(out)+1];
+                    wcscpy(New, out);
+                    size_t cw = count_width_widestring(New, roman->cur_sh->fwidth[col]);
 
-                    if (wcslen(new) > cw && rowfmt) {
+                    if (wcslen(New) > cw && rowfmt) {
                         int count_row = 0;
                         for (count_row = 0; count_row < rowfmt; count_row++) {
-                            cw = count_width_widestring(new, roman->cur_sh->fwidth[col]);
-                            if (cw) del_range_wchars(new, 0, cw-1);
-                            int whites = roman->cur_sh->fwidth[col] - wcslen(new);
-                            while (whites-- > 0) add_wchar(new, L' ', wcslen(new));
+                            cw = count_width_widestring(New, roman->cur_sh->fwidth[col]);
+                            if (cw) del_range_wchars(New, 0, cw-1);
+                            int whites = roman->cur_sh->fwidth[col] - wcslen(New);
+                            while (whites-- > 0) add_wchar(New, L' ', wcslen(New));
                         }
-                        new[cw] = L'\0';
-                        fprintf (f, "%ls", new);
-                    } else if (! rowfmt && wcslen(new)) {
-                        if (get_conf_int("truncate") || !get_conf_int("overlap")) new[cw] = L'\0';
-                        fprintf (f, "%ls", new);
+                        New[cw] = L'\0';
+                        fprintf (f, "%ls", New);
+                    } else if (! rowfmt && wcslen(New)) {
+                        if (get_conf_int("truncate") || !get_conf_int("overlap")) New[cw] = L'\0';
+                        fprintf (f, "%ls", New);
                     } else {
                         fprintf (f, "%*s", roman->cur_sh->fwidth[col], " ");
                     }
@@ -1764,7 +1764,7 @@ void export_latex(char * fname, int r0, int c0, int rn, int cn, int verbose) {
     struct roman * roman = session->cur_doc;
     FILE * f;
     int row, col;
-    register struct ent ** pp;
+    struct ent ** pp;
     int pid;
 
     // to prevent empty lines at the end of the file
@@ -2054,7 +2054,7 @@ int plugin_exists(char * name, int len, char * path) {
  * \brief TODO Document do_autobackup()
  * \return none
  */
-void * do_autobackup() {
+void * do_autobackup(void*) {
     struct sheet  * sh = session->cur_doc->cur_sh;
     char * curfile = session->cur_doc->name;
     int len;
@@ -2074,7 +2074,7 @@ void * do_autobackup() {
 
     // create new version
     if (! strcmp(&name[strlen(name)-7], ".sc.bak")) {
-        register FILE * f;
+        FILE * f;
         if ((f = fopen(namenew , "w")) == NULL) return (void *) -1;
         write_fd(f, session->cur_doc);
         fclose(f);
@@ -2192,7 +2192,7 @@ void openfile_nested(char * file) {
  */
 void openfile_under_cursor(int r, int c) {
     struct roman * roman = session->cur_doc;
-    register struct ent ** pp;
+    struct ent ** pp;
     pp = ATBL(roman->cur_sh, roman->cur_sh->tbl, r, c);
     if (*pp && (*pp)->label) {
         char text[FBUFLEN] = "";
@@ -2211,7 +2211,7 @@ void readfile_argv(int argc, char ** argv) {
         if (strncmp(argv[i], "--", 2) ) { // a file was passed as argv. try to handle it
             printf("%s\n", argv[i]);
 
-            struct roman * roman = calloc(1, sizeof(struct roman));
+            struct roman * roman = (struct roman *)calloc(1, sizeof(struct roman));
             roman->name = argv[i];
             roman->first_sh = NULL;
             roman->cur_sh = NULL;
@@ -2241,7 +2241,7 @@ void readfile_argv(int argc, char ** argv) {
  */
 void load_file(char * file) {
     if (file == NULL || file[0] == '\0') return;
-    struct roman * roman = calloc(1, sizeof(struct roman));
+    struct roman * roman = (struct roman *)calloc(1, sizeof(struct roman));
     roman->name = ! strlen(file) ? NULL : strdup(file);
     roman->first_sh = NULL;
     roman->cur_sh = NULL;
@@ -2264,7 +2264,7 @@ void load_file(char * file) {
 
     // now mark 'Sheet1' as empty, removing is_allocated mark.
     roman->first_sh->flags &= ~is_allocated;
-    roman->first_sh->flags |= is_empty;
+    roman->first_sh->flags |= is_Empty;
     return;
 }
 
@@ -2279,7 +2279,7 @@ void load_tbl(char * loading_file) {
     #ifdef NO_WORDEXP
     size_t len;
     #else
-    int c;
+    size_t c;
     wordexp_t p;
     #endif
 
@@ -2317,7 +2317,7 @@ void load_tbl(char * loading_file) {
  * \return [int] -> return -1 (and quit app) if cannot alloc - return 0 on success
  */
 int create_empty_wb() {
-        struct roman * roman = calloc(1, sizeof(struct roman));
+        struct roman * roman = (struct roman *)calloc(1, sizeof(struct roman));
         roman->name = NULL;
         roman->first_sh = NULL;
         roman->cur_sh = NULL;
@@ -2338,6 +2338,6 @@ int create_empty_wb() {
         erasedb(roman->first_sh, 0);
 
         // mark 'Sheet1' as empty, removing is_allocated mark.
-        roman->first_sh->flags |= is_empty;
+        roman->first_sh->flags |= is_Empty;
         return 0;
 }

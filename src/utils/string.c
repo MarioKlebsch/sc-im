@@ -221,7 +221,7 @@ void subst(char * s, char from, char to) {
  * \return -1 otherwise
  */
 
-int str_in_str(char * s, char * b) {
+int str_in_str(const char * s, const char * b) {
     int slen = strlen(s);
     int blen = strlen(b);
 
@@ -252,7 +252,7 @@ int str_in_str(char * s, char * b) {
  * \return -1 otherwise
  */
 
-int wstr_in_wstr(wchar_t * s, wchar_t * b) {
+int wstr_in_wstr(const wchar_t * s, const wchar_t * b) {
     int slen = wcslen(s);
     int blen = wcslen(b);
 
@@ -490,7 +490,7 @@ char * str_replace ( const char * string, const char * substr, const char * repl
     head = newstr;
     while ( (tok = strstr ( head, substr ))) {
         oldstr = newstr;
-        newstr = malloc ( strlen ( oldstr ) - strlen ( substr ) + strlen ( replacement ) + 1 );
+        newstr = (char*)malloc ( strlen ( oldstr ) - strlen ( substr ) + strlen ( replacement ) + 1 );
         /* failed to alloc mem, free old string and return NULL */
         if ( newstr == NULL ){
             free (oldstr);
@@ -545,7 +545,7 @@ int sc_isprint(int d) {
  */
 
 int count_width_widestring(const wchar_t * s, int p) {
-    int n;
+    size_t n;
     int c_width = 0;
 
     for (n=0; n<wcslen(s); n++) {

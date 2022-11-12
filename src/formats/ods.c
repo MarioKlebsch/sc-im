@@ -68,7 +68,7 @@ extern struct session * session;
  * \return none
  */
 
-int open_ods(char * fname, char * encoding) {
+int open_ods(const char * fname, const char * encoding) {
 #ifdef ODS
     struct roman * roman = session->cur_doc;
     struct sheet * sh = roman->cur_sh;
@@ -88,7 +88,7 @@ int open_ods(char * fname, char * encoding) {
     }
 
     // open content.xml
-    char * name = "content.xml";
+    const char * name = "content.xml";
     zf = zip_fopen(za, name, ZIP_FL_UNCHANGED);
     char * content = NULL;
     if (zf) {

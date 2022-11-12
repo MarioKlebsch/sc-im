@@ -150,7 +150,7 @@ void set_trigger(struct sheet * sh, int r, int c, int rf, int cf, char * str) {
                     sc_error("Trigger could not be set: %s", dlerror());
                     return;
                 }
-                n->trigger->c_function = dlsym(n->trigger->handle, n->trigger->function);
+                n->trigger->c_function = (int (*)(struct ent*, int))dlsym(n->trigger->handle, n->trigger->function);
                 if ((error = dlerror()) != NULL)  {
                     sc_error("Trigger could not be set: %s.", error);
                     return;

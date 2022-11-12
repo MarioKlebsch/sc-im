@@ -46,4 +46,4 @@
  * CODE REVISION NUMBER:
  * the definition is on last line of help.c
  */
-extern char * rev;
+extern const char * rev;

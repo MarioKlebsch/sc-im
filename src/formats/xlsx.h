@@ -49,7 +49,7 @@ char * get_xlsx_string(xmlDocPtr doc, int pos);
 char * get_xlsx_styles(xmlDocPtr doc_styles, int pos);
 char * get_xlsx_number_format_by_id(xmlDocPtr doc_styles, int id);
 #endif
-int open_xlsx(char * fname, char * encoding);
+int open_xlsx(const char * fname, const char * encoding);
 #ifdef XLSX_EXPORT
-int export_xlsx(char * filename);
+int export_xlsx(const char * filename);
 #endif

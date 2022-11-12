@@ -81,14 +81,14 @@ void ui_do_welcome();
 void ui_update(int header);
 int ui_get_formated_value(struct ent ** p, int col, char * value);
 void ui_handle_cursor();
-void yyerror(char *err);               // error routine for yacc (gram.y)
+void yyerror(const char *err);               // error routine for yacc (gram.y)
 void ui_show_text(char * val);
 #ifdef XLUA
 void ui_bail(lua_State *L, char * msg);
 #endif
 char * ui_query(char * initial_msg);
 void ui_start_colors();
-void ui_sc_msg(char * s, int type, ...);
+void ui_sc_msg(const char * s, int type, ...);
 
 void ui_set_ucolor(WINDOW * w, struct ucolor * uc, int bg_override);
 int ui_show_content(WINDOW * win, int mxrow, int mxcol);
@@ -99,7 +99,7 @@ void ui_write_j(WINDOW * win, const char * word, const unsigned int row, const u
 void ui_show_cursor(WINDOW * win);
 void ui_pause();
 void ui_resume();
-wchar_t ui_query_opt(wchar_t * initial_msg, wchar_t * valid);
+wchar_t ui_query_opt(const wchar_t * initial_msg, const wchar_t * valid);
 void ui_mv_bottom_bar();
 #ifdef MOUSE
 void ui_handle_mouse(MEVENT event);

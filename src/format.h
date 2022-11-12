@@ -42,6 +42,6 @@
  * \brief Header file for format.c
  */
 
-int format(char *fmt, int lprecision, double val, char *buf, int buflen);
-int engformat(int fmt, int width, int lprecision, double val, char *buf, int buflen);
+int format(char *fmt, int lprecision, double val, char *buf, size_t buflen);
+int engformat(int fmt, size_t  width, int lprecision, double val, char *buf, size_t buflen);
 void free_formats();

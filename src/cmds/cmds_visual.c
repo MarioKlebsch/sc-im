@@ -60,6 +60,10 @@
 #ifdef UNDO
 #include "../undo.h"
 #endif
+#ifdef USELOCALE
+#include <locale.h>
+#include <langinfo.h>
+#endif
 
 extern int offscr_sc_rows, offscr_sc_cols;
 extern unsigned int curmode;
@@ -426,8 +430,6 @@ void do_visualmode(struct block * buf) {
     // datefmt with locale D_FMT format
     } else if (buf->value == ctl('d')) {
         #ifdef USELOCALE
-            #include <locale.h>
-            #include <langinfo.h>
             char * loc = NULL;
             char * f = NULL;
             loc = setlocale(LC_TIME, "");

@@ -217,7 +217,7 @@ int get_bufval(struct block * buf, int d) {
 * \details Search a buffer for a given integer value.
 * \return 0 if not found, 1 if found
 */
-int find_val(struct block * buf, int value) {
+int find_val(struct block * buf, wint_t value) {
     struct block * b_aux = buf;
     while ( b_aux != NULL && b_aux->value != '\0' ) {
         if (b_aux->value == value) return 1;

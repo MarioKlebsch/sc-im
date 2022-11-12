@@ -58,7 +58,7 @@ int id_sheet = 0;
  * \param[name] sheet name
  * \return sutrct sheet *
  */
-struct sheet * new_sheet(struct roman * doc, char * name) {
+struct sheet * new_sheet(struct roman * doc, const char * name) {
       struct sheet * sh;
       if ((sh = search_sheet(doc, name)) != 0 ) return sh;
 
@@ -100,7 +100,7 @@ struct sheet * new_sheet(struct roman * doc, char * name) {
  * \param[name] sheet name
  * \return struct sheet *
  */
-struct sheet * search_sheet(struct roman * doc, char * name) {
+struct sheet * search_sheet(struct roman * doc, const char * name) {
       if (doc == NULL || name == NULL || ! strlen(name)) return NULL;
       struct sheet * sh;
 

@@ -58,8 +58,10 @@
 #include "conf.h"
 #include "utils/string.h"
 
+#ifndef __cplusplus
 typedef int bool;
 enum { false, true };
+#endif
 
 #include "y.tab.h"
 
@@ -83,7 +85,7 @@ void fpe_trap(int signo) {
 }
 
 struct key {
-    char * key;
+    const char * key;
     int val;
 };
 
@@ -122,8 +124,8 @@ int yylex() {
         isfunc = isgoto = 0;
         ret = -1;
     } else if (isalpha(*p) || (*p == '_')) {
-        register char *la;    /* lookahead pointer */
-        register struct key *tblp;
+        char *la;    /* lookahead pointer */
+        struct key *tblp;
 
         if ( !tokenst ) {
             tokenst = p;
@@ -187,7 +189,7 @@ int yylex() {
                           (*ptr != ' ')
                           //|| (*ptr != '\t')
                           || (*(ptr-1) == '\\'))) ptr++;
-                    ptr = malloc((unsigned) (ptr - p));
+                    ptr = (char*)malloc((unsigned) (ptr - p));
                     yylval.sval = ptr;
 
                     while ( *p && (
@@ -224,7 +226,7 @@ int yylex() {
             }
         } // 117
     } else if ((*p == '.') || isdigit(*p)) { // 89
-        void (*sig_save)();
+        void (*sig_save)(int);
         double v = 0.0;
         int temp;
         char *nstart = p;
@@ -352,7 +354,7 @@ int yylex() {
  */
 
 int atocol(char *string, int len) {
-    register int col;
+    int col;
 
     col = (toupper(string[0])) - 'A';
 

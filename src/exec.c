@@ -94,7 +94,7 @@ int exec_cmd (char * line) {
         char * p;
         for (p = line; *p; p++)
             argc += (*p == ' ');
-        char ** argv = calloc(argc+1, sizeof(char*));
+        char ** argv = (char**)calloc(argc+1, sizeof(char*));
         int i;
         for (i = 0; i < argc; i++)
             argv[i] = strsep(&line, " ");

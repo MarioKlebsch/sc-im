@@ -31,7 +31,7 @@
 #include "vmtbl.h"
 #include "cmds/cmds_command.h"
 
-void yyerror(char *err);               // error routine for yacc (gram.y)
+void yyerror(const char *err);               // error routine for yacc (gram.y)
 int yylex();
 extern struct session * session;
 
@@ -795,7 +795,7 @@ command:
                                    // just reuse the just allocated 'Sheet1' in load_file();
                                    if (! strcmp($2, "Sheet1") && (sh = search_sheet(roman, $2)) != NULL && sh->flags & is_allocated) {
                                        sh->flags &= ~is_allocated;
-                                       sh->flags |= is_empty;
+                                       sh->flags |= is_Empty;
                                        scxfree($2);
                                        chg_mode('.');
 
@@ -808,7 +808,7 @@ command:
                                    // if a just allocated 'Sheet1' exists, reuse it and do not malloc a new one.
                                    } else if ((sh = search_sheet(roman, "Sheet1")) != NULL && sh->flags & is_allocated) {
                                        sh->flags &= ~is_allocated;
-                                       sh->flags |= is_empty;
+                                       sh->flags |= is_Empty;
                                        free(sh->name);
                                        sh->name = $2;
                                        chg_mode('.');
@@ -1277,203 +1277,203 @@ term:   var                       {
                                     }
                                   }
 
-        | '@' K_FIXED term        { $$ = new('f', $3, ENULL); }
+        | '@' K_FIXED term        { $$ = New('f', $3, ENULL); }
 
         | '(' '@' K_FIXED ')' term
-                                  { $$ = new('F', $5, ENULL); }
+                                  { $$ = New('F', $5, ENULL); }
 
         | '@' K_SUM '(' var_or_range ')'
-                                  { $$ = new(SUM, new_range(REDUCE | SUM, $4), ENULL); }
+                                  { $$ = New(SUM, new_range(REDUCE | SUM, $4), ENULL); }
         | '@' K_SUM  '(' range ',' e ')'
-                                  { $$ = new(SUM, new_range(REDUCE | SUM, $4), $6); }
+                                  { $$ = New(SUM, new_range(REDUCE | SUM, $4), $6); }
         | '@' K_PROD '(' var_or_range ')'
-                                  { $$ = new(PROD, new_range(REDUCE | PROD, $4), ENULL); }
+                                  { $$ = New(PROD, new_range(REDUCE | PROD, $4), ENULL); }
         | '@' K_PROD  '(' range ',' e ')'
-                                  { $$ = new(PROD, new_range(REDUCE | PROD, $4), $6); }
+                                  { $$ = New(PROD, new_range(REDUCE | PROD, $4), $6); }
         | '@' K_AVG '(' var_or_range ')'
-                                  { $$ = new(AVG, new_range(REDUCE | AVG, $4), ENULL); }
+                                  { $$ = New(AVG, new_range(REDUCE | AVG, $4), ENULL); }
         | '@' K_AVG  '(' range ',' e ')'
-                                  { $$ = new(AVG, new_range(REDUCE | AVG, $4), $6); }
+                                  { $$ = New(AVG, new_range(REDUCE | AVG, $4), $6); }
         | '@' K_STDDEV '(' var_or_range ')'
-                                  { $$ = new(STDDEV, new_range(REDUCE | STDDEV, $4), ENULL); }
+                                  { $$ = New(STDDEV, new_range(REDUCE | STDDEV, $4), ENULL); }
         | '@' K_STDDEV  '(' range ',' e ')'
-                                  { $$ = new(STDDEV, new_range(REDUCE | STDDEV, $4), $6); }
+                                  { $$ = New(STDDEV, new_range(REDUCE | STDDEV, $4), $6); }
         | '@' K_COUNT '(' var_or_range ')'
-                                  { $$ = new(COUNT, new_range(REDUCE | COUNT, $4), ENULL); }
+                                  { $$ = New(COUNT, new_range(REDUCE | COUNT, $4), ENULL); }
         | '@' K_COUNT  '(' range ',' e ')'
-                                  { $$ = new(COUNT, new_range(REDUCE | COUNT, $4), $6); }
+                                  { $$ = New(COUNT, new_range(REDUCE | COUNT, $4), $6); }
         | '@' K_MAX '(' var_or_range ')'
-                                  { $$ = new(MAX, new_range(REDUCE | MAX, $4), ENULL); }
+                                  { $$ = New(MAX, new_range(REDUCE | MAX, $4), ENULL); }
         | '@' K_MAX  '(' range ',' e ')'
-                                  { $$ = new(MAX, new_range(REDUCE | MAX, $4), $6); }
+                                  { $$ = New(MAX, new_range(REDUCE | MAX, $4), $6); }
         | '@' K_MAX '(' e ',' expr_list ')'
-                                  { $$ = new(LMAX, $6, $4); }
+                                  { $$ = New(LMAX, $6, $4); }
         | '@' K_MIN '(' var_or_range ')'
-                                  { $$ = new(MIN, new_range(REDUCE | MIN, $4), ENULL); }
+                                  { $$ = New(MIN, new_range(REDUCE | MIN, $4), ENULL); }
         | '@' K_MIN  '(' range ',' e ')'
-                                  { $$ = new(MIN, new_range(REDUCE | MIN, $4), $6); }
+                                  { $$ = New(MIN, new_range(REDUCE | MIN, $4), $6); }
         | '@' K_MIN '(' e ',' expr_list ')'
-                                  { $$ = new(LMIN, $6, $4); }
+                                  { $$ = New(LMIN, $6, $4); }
         | '@' K_ROWS '(' var_or_range ')'
                                   { $$ = new_range(REDUCE | 'R', $4); }
         | '@' K_COLS '(' var_or_range ')'
                                   { $$ = new_range(REDUCE | 'C', $4); }
-        | '@' K_ABS '(' e ')'     { $$ = new(ABS, $4, ENULL); }
-        | '@' K_FROW '(' e ')'    { $$ = new(FROW, $4, ENULL); }
-        | '@' K_FCOL '(' e ')'    { $$ = new(FCOL, $4, ENULL); }
-        | '@' K_ACOS '(' e ')'    { $$ = new(ACOS, $4, ENULL); }
-        | '@' K_ASIN '(' e ')'    { $$ = new(ASIN, $4, ENULL); }
-        | '@' K_ATAN '(' e ')'    { $$ = new(ATAN, $4, ENULL); }
+        | '@' K_ABS '(' e ')'     { $$ = New(ABS, $4, ENULL); }
+        | '@' K_FROW '(' e ')'    { $$ = New(FROW, $4, ENULL); }
+        | '@' K_FCOL '(' e ')'    { $$ = New(FCOL, $4, ENULL); }
+        | '@' K_ACOS '(' e ')'    { $$ = New(ACOS, $4, ENULL); }
+        | '@' K_ASIN '(' e ')'    { $$ = New(ASIN, $4, ENULL); }
+        | '@' K_ATAN '(' e ')'    { $$ = New(ATAN, $4, ENULL); }
         | '@' K_ATAN2 '(' e ',' e ')'
-                                  { $$ = new(ATAN2, $4, $6); }
-        | '@' K_CEIL '(' e ')'    { $$ = new(CEIL, $4, ENULL); }
-        | '@' K_COS '(' e ')'     { $$ = new(COS, $4, ENULL); }
-        | '@' K_EXP '(' e ')'     { $$ = new(EXP, $4, ENULL); }
-        | '@' K_FABS '(' e ')'    { $$ = new(FABS, $4, ENULL); }
-        | '@' K_FLOOR '(' e ')'   { $$ = new(FLOOR, $4, ENULL); }
+                                  { $$ = New(ATAN2, $4, $6); }
+        | '@' K_CEIL '(' e ')'    { $$ = New(CEIL, $4, ENULL); }
+        | '@' K_COS '(' e ')'     { $$ = New(COS, $4, ENULL); }
+        | '@' K_EXP '(' e ')'     { $$ = New(EXP, $4, ENULL); }
+        | '@' K_FABS '(' e ')'    { $$ = New(FABS, $4, ENULL); }
+        | '@' K_FLOOR '(' e ')'   { $$ = New(FLOOR, $4, ENULL); }
         | '@' K_HYPOT '(' e ',' e ')'
-                                  { $$ = new(HYPOT, $4, $6); }
-        | '@' K_LN '(' e ')'      { $$ = new(LOG, $4, ENULL); }
-        | '@' K_LOG '(' e ')'     { $$ = new(LOG10, $4, ENULL); }
+                                  { $$ = New(HYPOT, $4, $6); }
+        | '@' K_LN '(' e ')'      { $$ = New(LOG, $4, ENULL); }
+        | '@' K_LOG '(' e ')'     { $$ = New(LOG10, $4, ENULL); }
         | '@' K_POW '(' e ',' e ')'
-                                  { $$ = new(POW, $4, $6); }
-        | '@' K_SIN '(' e ')'     { $$ = new(SIN, $4, ENULL); }
-        | '@' K_SQRT '(' e ')'    { $$ = new(SQRT, $4, ENULL); }
-        | '@' K_TAN '(' e ')'     { $$ = new(TAN, $4, ENULL); }
-        | '@' K_DTR '(' e ')'     { $$ = new(DTR, $4, ENULL); }
-        | '@' K_RTD '(' e ')'     { $$ = new(RTD, $4, ENULL); }
-        | '@' K_RND '(' e ')'     { $$ = new(RND, $4, ENULL); }
+                                  { $$ = New(POW, $4, $6); }
+        | '@' K_SIN '(' e ')'     { $$ = New(SIN, $4, ENULL); }
+        | '@' K_SQRT '(' e ')'    { $$ = New(SQRT, $4, ENULL); }
+        | '@' K_TAN '(' e ')'     { $$ = New(TAN, $4, ENULL); }
+        | '@' K_DTR '(' e ')'     { $$ = New(DTR, $4, ENULL); }
+        | '@' K_RTD '(' e ')'     { $$ = New(RTD, $4, ENULL); }
+        | '@' K_RND '(' e ')'     { $$ = New(RND, $4, ENULL); }
         | '@' K_ROUND '(' e ',' e ')'
-                                  { $$ = new(ROUND, $4, $6); }
+                                  { $$ = New(ROUND, $4, $6); }
         | '@' K_IF  '(' e ',' e ',' e ')'
-                                  { $$ = new(IF,  $4,new(',',$6,$8)); }
+                                  { $$ = New(IF,  $4,New(',',$6,$8)); }
         | '@' K_PV  '(' e ',' e ',' e ')'
-                                  { $$ = new(PV,  $4,new(':',$6,$8)); }
+                                  { $$ = New(PV,  $4,New(':',$6,$8)); }
         | '@' K_FV  '(' e ',' e ',' e ')'
-                                  { $$ = new(FV,  $4,new(':',$6,$8)); }
+                                  { $$ = New(FV,  $4,New(':',$6,$8)); }
         | '@' K_PMT '(' e ',' e ',' e ')'
-                                  { $$ = new(PMT, $4,new(':',$6,$8)); }
-        | '@' K_HOUR '(' e ')'    { $$ = new(HOUR, $4, ENULL); }
-        | '@' K_MINUTE '(' e ')'  { $$ = new(MINUTE, $4, ENULL); }
-        | '@' K_SECOND '(' e ')'  { $$ = new(SECOND, $4, ENULL); }
-        | '@' K_MONTH '(' e ')'   { $$ = new(MONTH, $4, ENULL); }
-        | '@' K_DAY '(' e ')'     { $$ = new(DAY, $4, ENULL); }
-        | '@' K_YEAR '(' e ')'    { $$ = new(YEAR, $4, ENULL); }
-        | '@' K_NOW               { $$ = new(NOW, ENULL, ENULL);}
+                                  { $$ = New(PMT, $4,New(':',$6,$8)); }
+        | '@' K_HOUR '(' e ')'    { $$ = New(HOUR, $4, ENULL); }
+        | '@' K_MINUTE '(' e ')'  { $$ = New(MINUTE, $4, ENULL); }
+        | '@' K_SECOND '(' e ')'  { $$ = New(SECOND, $4, ENULL); }
+        | '@' K_MONTH '(' e ')'   { $$ = New(MONTH, $4, ENULL); }
+        | '@' K_DAY '(' e ')'     { $$ = New(DAY, $4, ENULL); }
+        | '@' K_YEAR '(' e ')'    { $$ = New(YEAR, $4, ENULL); }
+        | '@' K_NOW               { $$ = New(NOW, ENULL, ENULL);}
         | '@' K_DTS '(' e ',' e ',' e ')'
-                                  { $$ = new(DTS, $4, new(',', $6, $8));}
+                                  { $$ = New(DTS, $4, New(',', $6, $8));}
         | NUMBER '.' NUMBER '.' NUMBER
-                                  { $$ = new(DTS, new_const(O_CONST, (double) $1),
-                                         new(',', new_const(O_CONST, (double) $3),
+                                  { $$ = New(DTS, new_const(O_CONST, (double) $1),
+                                         New(',', new_const(O_CONST, (double) $3),
                                          new_const(O_CONST, (double) $5)));}
         | '@' K_TTS '(' e ',' e ',' e ')'
-                                  { $$ = new(TTS, $4, new(',', $6, $8));}
-        | '@' K_STON '(' e ')'    { $$ = new(STON, $4, ENULL); }
-        | '@' K_SLEN '(' e ')'    { $$ = new(SLEN, $4, ENULL); }
+                                  { $$ = New(TTS, $4, New(',', $6, $8));}
+        | '@' K_STON '(' e ')'    { $$ = New(STON, $4, ENULL); }
+        | '@' K_SLEN '(' e ')'    { $$ = New(SLEN, $4, ENULL); }
         | '@' K_EQS '(' e ',' e ')'
-                                  { $$ = new(EQS, $4, $6); }
-        | '@' K_DATE '(' e ')'    { $$ = new(DATE, $4, ENULL); }
+                                  { $$ = New(EQS, $4, $6); }
+        | '@' K_DATE '(' e ')'    { $$ = New(DATE, $4, ENULL); }
         | '@' K_DATE '(' e ',' e ')'
-                                  { $$ = new(DATE, $4, $6); }
+                                  { $$ = New(DATE, $4, $6); }
         | '@' K_FMT  '(' e ',' e ')'
-                                  { $$ = new(FMT, $4, $6); }
-        | '@' K_UPPER '(' e ')'   { $$ = new(UPPER, $4, ENULL); }
-        | '@' K_LOWER '(' e ')'   { $$ = new(LOWER, $4, ENULL); }
-        | '@' K_CAPITAL '(' e ')' { $$ = new(CAPITAL, $4, ENULL); }
+                                  { $$ = New(FMT, $4, $6); }
+        | '@' K_UPPER '(' e ')'   { $$ = New(UPPER, $4, ENULL); }
+        | '@' K_LOWER '(' e ')'   { $$ = New(LOWER, $4, ENULL); }
+        | '@' K_CAPITAL '(' e ')' { $$ = New(CAPITAL, $4, ENULL); }
         | '@' K_INDEX  '(' range ',' e ')'
-                                  { $$ = new(INDEX, new_range(REDUCE | INDEX, $4), $6); }
+                                  { $$ = New(INDEX, new_range(REDUCE | INDEX, $4), $6); }
         | '@' K_INDEX  '(' e ',' range ')'
-                                  { $$ = new(INDEX, new_range(REDUCE | INDEX, $6), $4); }
+                                  { $$ = New(INDEX, new_range(REDUCE | INDEX, $6), $4); }
         | '@' K_INDEX  '(' range ',' e ',' e ')'
-                                  { $$ = new(INDEX, new_range(REDUCE | INDEX, $4), new(',', $6, $8)); }
+                                  { $$ = New(INDEX, new_range(REDUCE | INDEX, $4), New(',', $6, $8)); }
         | '@' K_LOOKUP  '(' range ',' e ')'
-                                  { $$ = new(LOOKUP, new_range(REDUCE | LOOKUP, $4), $6); }
+                                  { $$ = New(LOOKUP, new_range(REDUCE | LOOKUP, $4), $6); }
         | '@' K_LOOKUP  '(' e ',' range ')'
-                                  { $$ = new(LOOKUP, new_range(REDUCE | LOOKUP, $6), $4); }
+                                  { $$ = New(LOOKUP, new_range(REDUCE | LOOKUP, $6), $4); }
         | '@' K_HLOOKUP  '(' range ',' e ',' e ')'
-                                  { $$ = new(HLOOKUP, new_range(REDUCE | HLOOKUP, $4), new(',', $6, $8)); }
+                                  { $$ = New(HLOOKUP, new_range(REDUCE | HLOOKUP, $4), New(',', $6, $8)); }
         | '@' K_HLOOKUP  '(' e ',' range ',' e ')'
-                                  { $$ = new(HLOOKUP, new_range(REDUCE | HLOOKUP, $6), new(',', $4, $8)); }
+                                  { $$ = New(HLOOKUP, new_range(REDUCE | HLOOKUP, $6), New(',', $4, $8)); }
         | '@' K_VLOOKUP  '(' range ',' e ',' e ')'
-                                  { $$ = new(VLOOKUP, new_range(REDUCE | VLOOKUP, $4), new(',', $6, $8)); }
+                                  { $$ = New(VLOOKUP, new_range(REDUCE | VLOOKUP, $4), New(',', $6, $8)); }
         | '@' K_VLOOKUP  '(' e ',' range ',' e ')'
-                                  { $$ = new(VLOOKUP, new_range(REDUCE | VLOOKUP, $6), new(',', $4, $8)); }
+                                  { $$ = New(VLOOKUP, new_range(REDUCE | VLOOKUP, $6), New(',', $4, $8)); }
         | '@' K_STINDEX  '(' range ',' e ')'
-                                  { $$ = new(STINDEX, new_range(REDUCE | STINDEX, $4), $6); }
+                                  { $$ = New(STINDEX, new_range(REDUCE | STINDEX, $4), $6); }
         | '@' K_STINDEX  '(' e ',' range ')'
-                                  { $$ = new(STINDEX, new_range(REDUCE | STINDEX, $6), $4); }
+                                  { $$ = New(STINDEX, new_range(REDUCE | STINDEX, $6), $4); }
         | '@' K_STINDEX  '(' range ',' e ',' e ')'
-                                  { $$ = new(STINDEX, new_range(REDUCE | STINDEX, $4), new(',', $6, $8)); }
+                                  { $$ = New(STINDEX, new_range(REDUCE | STINDEX, $4), New(',', $6, $8)); }
         | '@' K_EXT  '(' e ',' e ')'
-                                  { $$ = new(EXT, $4, $6); }
+                                  { $$ = New(EXT, $4, $6); }
         | '@' K_LUA  '(' e ',' e ')'
                                   {
                                   #ifdef XLUA
-                                  $$ = new(LUA, $4, $6);
+                                  $$ = New(LUA, $4, $6);
                                   #endif
                                   }
-        | '@' K_MYROW             { $$ = new(MYROW, ENULL, ENULL);}
-        | '@' K_MYCOL             { $$ = new(MYCOL, ENULL, ENULL);}
-        | '@' K_LASTROW           { $$ = new(LASTROW, ENULL, ENULL);}
-        | '@' K_LASTCOL           { $$ = new(LASTCOL, ENULL, ENULL);}
+        | '@' K_MYROW             { $$ = New(MYROW, ENULL, ENULL);}
+        | '@' K_MYCOL             { $$ = New(MYCOL, ENULL, ENULL);}
+        | '@' K_LASTROW           { $$ = New(LASTROW, ENULL, ENULL);}
+        | '@' K_LASTCOL           { $$ = New(LASTCOL, ENULL, ENULL);}
         | '@' K_NVAL '(' e ',' e ')'
-                                  { $$ = new(NVAL, $4, $6); }
+                                  { $$ = New(NVAL, $4, $6); }
         | '@' K_SVAL '(' e ',' e ')'
-                                  { $$ = new(SVAL, $4, $6); }
+                                  { $$ = New(SVAL, $4, $6); }
         | '@' K_REPLACE '(' e ',' e ',' e ')'
-                                  { $$ = new(REPLACE, $4, new(',', $6, $8)); }
+                                  { $$ = New(REPLACE, $4, New(',', $6, $8)); }
 
-        | '@' K_EVALUATE '(' e ')'  { $$ = new(EVALUATE, $4, ENULL); }
-        | '@' K_SEVALUATE '(' e ')' { $$ = new(SEVALUATE, $4, ENULL); }
+        | '@' K_EVALUATE '(' e ')'  { $$ = New(EVALUATE, $4, ENULL); }
+        | '@' K_SEVALUATE '(' e ')' { $$ = New(SEVALUATE, $4, ENULL); }
         | '@' K_SUBSTR '(' e ',' e ',' e ')'
-                                  { $$ = new(SUBSTR, $4, new(',', $6, $8)); }
+                                  { $$ = New(SUBSTR, $4, New(',', $6, $8)); }
         |       '(' e ')'         { $$ = $2; }
         |       '+' term          { $$ = $2; }
-    //    |       '-' term          { $$ = new('m', $2, ENULL); }
+    //    |       '-' term          { $$ = New('m', $2, ENULL); }
         |       NUMBER            { $$ = new_const(O_CONST, (double) $1); }
         |       FNUMBER           { $$ = new_const(O_CONST, $1); }
-        | '@'   K_PI              { $$ = new(PI_, ENULL, ENULL); }
+        | '@'   K_PI              { $$ = New(PI_, ENULL, ENULL); }
         |       STRING            { $$ = new_str($1); }
-        |       '~' term          { $$ = new('!', $2, ENULL); }
-        |       '!' term          { $$ = new('!', $2, ENULL); }
+        |       '~' term          { $$ = New('!', $2, ENULL); }
+        |       '!' term          { $$ = New('!', $2, ENULL); }
         | '@' K_FILENAME '(' e ')'
-                                  { $$ = new(FILENAME, $4, ENULL); }
-        | '@' K_COLTOA '(' e ')'  { $$ = new(COLTOA, $4, ENULL);}
-        | '@' K_ASCII '(' e ')'   { $$ = new(ASCII, $4, ENULL); }
-        | '@' K_SET8BIT '(' e ')' { $$ = new(SET8BIT, $4, ENULL); }
-        | '@' K_CHR '(' e ')'     { $$ = new(CHR, $4, ENULL);}
-        | '@' K_ERR               { $$ = new(ERR_, ENULL, ENULL); }
-        |     K_ERR               { $$ = new(ERR_, ENULL, ENULL); }
-        | '@' K_REF               { $$ = new(REF_, ENULL, ENULL); }
-        |     K_REF               { $$ = new(REF_, ENULL, ENULL); }
-        | '@' K_FACT '(' e ')'    { $$ = new(FACT, $4, ENULL); }
+                                  { $$ = New(FILENAME, $4, ENULL); }
+        | '@' K_COLTOA '(' e ')'  { $$ = New(COLTOA, $4, ENULL);}
+        | '@' K_ASCII '(' e ')'   { $$ = New(ASCII, $4, ENULL); }
+        | '@' K_SET8BIT '(' e ')' { $$ = New(SET8BIT, $4, ENULL); }
+        | '@' K_CHR '(' e ')'     { $$ = New(CHR, $4, ENULL);}
+        | '@' K_ERR               { $$ = New(ERR_, ENULL, ENULL); }
+        |     K_ERR               { $$ = New(ERR_, ENULL, ENULL); }
+        | '@' K_REF               { $$ = New(REF_, ENULL, ENULL); }
+        |     K_REF               { $$ = New(REF_, ENULL, ENULL); }
+        | '@' K_FACT '(' e ')'    { $$ = New(FACT, $4, ENULL); }
         ;
 
 /* expressions */
-e:       e '+' e                  { $$ = new('+', $1, $3); }
-    |    e '-' e                  { $$ = new('-', $1, $3); }
-    |    e '*' e                  { $$ = new('*', $1, $3); }
-    |    e '/' e                  { $$ = new('/', $1, $3); }
-    |    e '%' e                  { $$ = new('%', $1, $3); }
-    |      '-' e                  { $$ = new('m', $2, ENULL); }
-    |    e '^' e                  { $$ = new('^', $1, $3); }
+e:       e '+' e                  { $$ = New('+', $1, $3); }
+    |    e '-' e                  { $$ = New('-', $1, $3); }
+    |    e '*' e                  { $$ = New('*', $1, $3); }
+    |    e '/' e                  { $$ = New('/', $1, $3); }
+    |    e '%' e                  { $$ = New('%', $1, $3); }
+    |      '-' e                  { $$ = New('m', $2, ENULL); }
+    |    e '^' e                  { $$ = New('^', $1, $3); }
     |    term
-    |    e '?' e ':' e            { $$ = new('?', $1, new(':', $3, $5)); }
-    |    e ';' e                  { $$ = new(';', $1, $3); }
-    |    e '<' e                  { $$ = new('<', $1, $3); }
-    |    e '=' e                  { $$ = new('=', $1, $3); }
-    |    e '>' e                  { $$ = new('>', $1, $3); }
-    |    e '&' e                  { $$ = new('&', $1, $3); }
-    |    e '|' e                  { $$ = new('|', $1, $3); }
-    |    e '<' '=' e              { $$ = new('!', new('>', $1, $4), ENULL); }
-    /* |    e '!' '=' e              { $$ = new('!', new('=', $1, $4), ENULL); } */
-    |    e '<' '>' e              { $$ = new('!', new('=', $1, $4), ENULL); }
-    |    e '>' '=' e              { $$ = new('!', new('<', $1, $4), ENULL); }
-    |    e '#' e                  { $$ = new('#', $1, $3); }
+    |    e '?' e ':' e            { $$ = New('?', $1, New(':', $3, $5)); }
+    |    e ';' e                  { $$ = New(';', $1, $3); }
+    |    e '<' e                  { $$ = New('<', $1, $3); }
+    |    e '=' e                  { $$ = New('=', $1, $3); }
+    |    e '>' e                  { $$ = New('>', $1, $3); }
+    |    e '&' e                  { $$ = New('&', $1, $3); }
+    |    e '|' e                  { $$ = New('|', $1, $3); }
+    |    e '<' '=' e              { $$ = New('!', New('>', $1, $4), ENULL); }
+    /* |    e '!' '=' e              { $$ = New('!', New('=', $1, $4), ENULL); } */
+    |    e '<' '>' e              { $$ = New('!', New('=', $1, $4), ENULL); }
+    |    e '>' '=' e              { $$ = New('!', New('<', $1, $4), ENULL); }
+    |    e '#' e                  { $$ = New('#', $1, $3); }
     ;
 
-expr_list:     e                  { $$ = new(ELIST, ENULL, $1); }
-    |    expr_list ',' e          { $$ = new(ELIST, $1, $3); }
+expr_list:     e                  { $$ = New(ELIST, ENULL, $1); }
+    |    expr_list ',' e          { $$ = New(ELIST, $1, $3); }
     ;
 
 range:   var ':' var              {
@@ -1513,7 +1513,7 @@ var:
                                     $$.vp = lookat(sh, eval(sh, NULL, $4), eval(sh, NULL, $6));
                                     $$.vf = GET_ENT;
                                     if ($$.expr != NULL) efree($$.expr);
-                                    $$.expr = new(GETENT, $4, $6);
+                                    $$.expr = New(GETENT, $4, $6);
                                   }
 
     |    VAR                      {
@@ -1534,7 +1534,8 @@ num:     NUMBER                   { $$ = (double) $1; }
 
 strarg:  STRING                   { $$ = $1; }
     |    var                      {
-                                    char *s, *s1;
+                                    char *s;
+                                    const char *s1;
                                     s1 = $1.vp->label;
                                     if (!s1)
                                     s1 = "NULL_STRING";

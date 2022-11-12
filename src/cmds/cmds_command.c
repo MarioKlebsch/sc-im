@@ -83,11 +83,11 @@ extern struct session * session;
 
 wchar_t inputline[BUFFERSIZE];
 extern wchar_t interp_line[BUFFERSIZE];
-int inputline_pos; /**< Position in window. Some chars has 2 chars width */
+size_t inputline_pos; /**< Position in window. Some chars has 2 chars width */
 // see https://en.wikipedia.org/wiki/Halfwidth_and_fullwidth_forms
-int real_inputline_pos; /**<  Real position in inputline */
+size_t real_inputline_pos; /**<  Real position in inputline */
 
-static wchar_t * valid_commands[] = {
+static const wchar_t * valid_commands[] = {
 L"!",
 L"addfilter",
 L"autofit",
@@ -228,7 +228,7 @@ void do_commandmode(struct block * sb) {
         return;
 
     } else if (sb->value == OKEY_RIGHT) {  // RIGHT
-        int max = wcswidth(inputline, wcslen(inputline));
+        size_t max = wcswidth(inputline, wcslen(inputline));
         if (inputline_pos < max) {
             int l = wcwidth(inputline[real_inputline_pos++]);
             inputline_pos += l;
@@ -298,7 +298,8 @@ void do_commandmode(struct block * sb) {
     } else if (sb->value == ctl('r') && get_bufsize(sb) == 2 &&        // C-r      // FIXME ???
         (sb->pnext->value - (L'a' - 1) < 1 || sb->pnext->value > 26)) {
         wchar_t cline [BUFFERSIZE];
-        int i, r = get_mark(sb->pnext->value)->row;
+        size_t i;
+	int r = get_mark(sb->pnext->value)->row;
         if (r != -1) {
             swprintf(cline, BUFFERSIZE, L"%s%d", coltoa(get_mark(sb->pnext->value)->col), r);
         } else {
@@ -318,7 +319,7 @@ void do_commandmode(struct block * sb) {
 
     } else if (sb->value == ctl('f')) {               // C-f
         wchar_t cline [BUFFERSIZE];
-        int i;
+        size_t i;
         struct ent * p1 = *ATBL(sh, sh->tbl, sh->currow, sh->curcol);
         if (! p1 || ! p1->format) {
             sc_error("cell has no format");
@@ -406,7 +407,7 @@ void do_commandmode(struct block * sb) {
     } else if (find_val(sb, OKEY_ENTER)) {
 
         if ( ! wcscmp(inputline, L"refresh")) {
-            sig_winchg();
+            sig_winchg(0);
 
         } else if ( ! wcscmp(inputline, L"help") || ! wcscmp(inputline, L"h") ) {
             help();
@@ -1034,7 +1035,7 @@ void do_commandmode(struct block * sb) {
                 // if it exists, remove it.
                 if (curfile != NULL && strlen(curfile) && backup_exists(curfile)) remove_backup(curfile);
                 #endif
-                if (roman->name == NULL) roman->name = malloc(sizeof(char)*PATHLEN);
+                if (roman->name == NULL) roman->name = (char*)malloc(sizeof(char)*PATHLEN);
                 strncpy(roman->name, name, PATHLEN - 1);
                 sc_info("File name set to \"%s\"", roman->name);
             }
@@ -1081,10 +1082,10 @@ void do_commandmode(struct block * sb) {
         } else if (
             ! wcsncmp(inputline, L"e xlsx"  , 6) ||
             ! wcsncmp(inputline, L"e! xlsx" , 7)) {
-                char * curfile = session->cur_doc->name;
                 #ifndef XLSX_EXPORT
                 sc_error("XLSX export support not compiled in");
                 #else
+                char * curfile = session->cur_doc->name;
                 char linea[BUFFERSIZE];
                 char filename[PATHLEN] = "";
                 int force_rewrite = 0;
